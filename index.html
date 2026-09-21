@@ -38,9 +38,15 @@
   .ft-theme-toggle button{background:var(--surface-2);border:1px solid var(--line);color:var(--text-dim);padding:6px 12px;border-radius:3px;font-size:12px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;}
   .ft-theme-toggle button.active{border-color:var(--accent);color:var(--accent);}
 
-  .ft-balance{display:flex;align-items:baseline;gap:14px;padding:22px;background:var(--surface);border:1px solid var(--line);border-radius:4px;margin-bottom:22px;}
+  .ft-balance{padding:22px;background:var(--surface);border:1px solid var(--line);border-radius:4px;margin-bottom:22px;}
+  .ft-balance-head{display:flex;align-items:baseline;gap:14px;}
   .ft-balance .num{font-family:'IBM Plex Mono',monospace;font-size:36px;font-weight:600;}
   .ft-balance .lbl{color:var(--text-dim);font-size:13px;}
+  .ft-balance-edit{background:none;border:none;color:var(--text-faint);font-size:12px;cursor:pointer;text-decoration:underline;font-family:'IBM Plex Sans',sans-serif;}
+  .ft-balance-editor{display:flex;align-items:center;gap:8px;margin-top:12px;}
+  .ft-balance-editor input{background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:16px;padding:8px 10px;border-radius:3px;width:180px;}
+  .ft-balance-editor button{background:var(--surface-2);border:1px solid var(--line);color:var(--text-dim);padding:8px 12px;border-radius:3px;font-size:12px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;}
+  .ft-balance-editor button:first-of-type{background:var(--accent);border-color:var(--accent);color:var(--accent-contrast);}
   .ft-balance.neg .num{color:var(--neg);}
   .ft-balance.pos .num{color:var(--pos);}
 
@@ -182,6 +188,8 @@
     .ft-whatif .form{grid-template-columns:1fr;}
     .ft-summary{grid-template-columns:1fr;}
     .ft-cmp-form{grid-template-columns:1fr;}
+    .ft-balance-editor{flex-wrap:wrap;}
+    .ft-balance-editor input{flex:1 1 160px;min-width:0;}
     .ft-savings-row{flex-wrap:wrap;}
     .ft-savings-row label{min-width:0;flex-basis:100%;}
     .ft-savings-row input{width:100%;}
@@ -208,18 +216,22 @@
   </div>
 
   <div class="ft-balance" id="ftBalanceBox">
-    <span class="num" id="ftCurrentSavings">₱0</span>
-    <span class="lbl">On hand today · read-only</span>
+    <div class="ft-balance-head">
+      <span class="num" id="ftCurrentSavings">₱0</span>
+      <span class="lbl">on hand today</span>
+      <button class="ft-balance-edit" id="editSavingsBtn" type="button">Edit</button>
+    </div>
+    <div class="ft-balance-editor" id="savingsEditor" style="display:none">
+      <input type="number" id="inpSavings" placeholder="0" step="0.01" aria-label="Current savings">
+      <button id="saveSavingsBtn" type="button">Save</button>
+      <button id="cancelSavingsBtn" type="button">Cancel</button>
+    </div>
   </div>
 
   <div class="ft-dash-grid" id="dashboardCards"></div>
 
   <section>
     <div class="ft-section-head"><h2>Starting point</h2></div>
-    <div class="ft-savings-row">
-      <label>Current savings</label>
-      <input type="number" id="inpSavings" placeholder="0" step="0.01">
-    </div>
     <div class="ft-savings-row">
       <label>Goal name</label>
       <input type="text" id="inpGoalName" placeholder="optional, e.g. Emergency Fund">
@@ -232,7 +244,7 @@
   </section>
 
   <section>
-    <div class="ft-section-head"><h2>Record a receipt</h2><span class="hint">manual entry only; deducts from current savings</span></div>
+    <div class="ft-section-head"><h2>Receipts</h2><span class="hint">deducts from current savings</span></div>
     <div class="ft-receipt">
       <button class="ft-add" id="rcOpenBtn">Record a receipt</button>
       <div id="receiptConfirm" style="display:none;margin-top:10px;">
@@ -795,7 +807,7 @@
   }
   // Rough monospace width estimate (IBM Plex Mono digits run close to 0.6em) used to size the
   // left axis gutter to whatever the longest label actually turns out to be, instead of a fixed
-  // guess that breaks the moment balances grow past whatever number I happened to test with.
+  // guess that breaks the moment balances grow past whatever number I happened to use.
   function estimateLabelWidth(text, fontSize){
     return text.length * fontSize * 0.62;
   }
@@ -944,7 +956,7 @@
     } else {
       cards.push({ k:'Goal', v:'Not set' });
     }
-    cards.push({ k:'Next month', v:fmt(nextMonthBalance), cls:nextMonthBalance<0?'warn':'' });
+    cards.push({ k:'By end of next month', v:fmt(nextMonthBalance), cls:nextMonthBalance<0?'warn':'' });
     document.getElementById('dashboardCards').innerHTML = cards.map(c =>
       `<div class="card ${escapeHTML(c.cls||'')}"><div class="k">${escapeHTML(c.k)}</div><div class="v">${escapeHTML(c.v)}</div>${c.sub?`<div class="sub">${escapeHTML(c.sub)}</div>`:''}</div>`
     ).join('');
@@ -1488,7 +1500,40 @@
     if (file) importBackup(file);
   });
 
-  document.getElementById('inpSavings').addEventListener('input', e => { data.savings=parseFloat(e.target.value)||0; scheduleSave(); recompute(); });
+  let savingsEditOriginal = null;
+  let savingsEditDirty = false;
+  function closeSavingsEditor(){
+    document.getElementById('inpSavings').value = data.savings;
+    document.getElementById('savingsEditor').style.display = 'none';
+    document.getElementById('editSavingsBtn').style.display = 'inline';
+  }
+  document.getElementById('editSavingsBtn').addEventListener('click', () => {
+    savingsEditOriginal = data.savings;
+    savingsEditDirty = false;
+    document.getElementById('inpSavings').value = data.savings;
+    document.getElementById('savingsEditor').style.display = 'flex';
+    document.getElementById('editSavingsBtn').style.display = 'none';
+    document.getElementById('inpSavings').focus();
+  });
+  document.getElementById('saveSavingsBtn').addEventListener('click', () => {
+    document.getElementById('inpSavings').dispatchEvent(new Event('input', { bubbles:true }));
+    closeSavingsEditor();
+  });
+  document.getElementById('cancelSavingsBtn').addEventListener('click', () => {
+    if (savingsEditDirty){
+      clearTimeout(saveTimer);
+      data.savings = savingsEditOriginal;
+      recompute();
+    }
+    closeSavingsEditor();
+    savingsEditOriginal = null;
+    savingsEditDirty = false;
+  });
+  document.getElementById('inpSavings').addEventListener('input', e => {
+    data.savings=parseFloat(e.target.value)||0;
+    savingsEditDirty = document.getElementById('savingsEditor').style.display !== 'none';
+    scheduleSave(); recompute();
+  });
   document.getElementById('inpGoal').addEventListener('input', e => { data.savingsGoal=parseFloat(e.target.value)||0; scheduleSave(); recompute(); });
   document.getElementById('inpGoalName').addEventListener('input', e => { data.savingsGoalName=e.target.value; scheduleSave(); recompute(); });
   document.getElementById('instMonths').addEventListener('input', e => { data.installmentMonths=parseInt(e.target.value,10)||6; scheduleSave(); renderCompare(); });
