@@ -1,0 +1,1551 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  .ft-root.theme-dark{
+    --bg:#0F1613; --surface:#161F1B; --surface-2:#1C2721; --line:#57665D;
+    --text:#E7ECE8; --text-dim:#9DB1A5; --text-faint:#5C6D63;
+    --pos:#6FCF97; --neg:#E1796B; --accent:#3FA672; --accent-contrast:#0B120E;
+    --scenA:#4FA8D8; --scenB:#6FCF97; --scenC:#D4B483; --scenD:#C77DFF;
+  }
+  .ft-root.theme-light{
+    --bg:#F3F6F3; --surface:#FFFFFF; --surface-2:#EAF1EC; --line:#839088;
+    --text:#16211B; --text-dim:#49584F; --text-faint:#7B8C82;
+    --pos:#1F7A4D; --neg:#A8402F; --accent:#1F7A4D; --accent-contrast:#FFFFFF;
+    --scenA:#1D6FA5; --scenB:#1F7A4D; --scenC:#A67C2E; --scenD:#7A3FA6;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  .ft-root{min-height:100vh;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;}
+  .ft-inner{max-width:720px;margin:0 auto;padding:28px 20px 60px;}
+  h1,h2,h3{font-family:'Source Serif 4',serif;font-weight:600;margin:0;}
+  .ft-header{margin-bottom:28px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;}
+  .ft-brand{display:flex;align-items:center;gap:8px;}
+  .ft-mark{color:var(--accent);flex-shrink:0;}
+  .ft-header h1{font-size:28px;letter-spacing:-0.01em;color:var(--text);}
+  .ft-header .tagline{margin:6px 0 0;color:var(--text-dim);font-size:14px;line-height:1.5;max-width:48ch;letter-spacing:0.01em;}
+  .ft-dash-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:26px;}
+  .ft-dash-grid .card:nth-child(-n+3){grid-column:span 2;}
+  .ft-dash-grid .card:nth-child(4){grid-column:1 / span 2;}
+  .ft-dash-grid .card:nth-child(5){grid-column:3 / span 2;}
+  .ft-dash-grid .card:nth-child(6){grid-column:5 / span 2;}
+  .ft-dash-grid .card{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:12px;}
+  .ft-dash-grid .card .k{font-size:11px;color:var(--text-faint);margin-bottom:4px;}
+  .ft-dash-grid .card .v{font-family:'IBM Plex Mono',monospace;font-size:16px;color:var(--text);}
+  .ft-dash-grid .card.warn .v{color:var(--neg);}
+  .ft-dash-grid .card.good .v{color:var(--pos);}
+  .ft-dash-grid .card .sub{font-size:10px;color:var(--text-faint);margin-top:3px;}
+  .ft-theme-toggle{display:flex;gap:6px;flex-shrink:0;}
+  .ft-theme-toggle button{background:var(--surface-2);border:1px solid var(--line);color:var(--text-dim);padding:6px 12px;border-radius:3px;font-size:12px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;}
+  .ft-theme-toggle button.active{border-color:var(--accent);color:var(--accent);}
+
+  .ft-balance{display:flex;align-items:baseline;gap:14px;padding:22px;background:var(--surface);border:1px solid var(--line);border-radius:4px;margin-bottom:22px;}
+  .ft-balance .num{font-family:'IBM Plex Mono',monospace;font-size:36px;font-weight:600;}
+  .ft-balance .lbl{color:var(--text-dim);font-size:13px;}
+  .ft-balance.neg .num{color:var(--neg);}
+  .ft-balance.pos .num{color:var(--pos);}
+
+  section{margin-bottom:26px;}
+  .ft-section-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;border-bottom:1px solid var(--line);padding-bottom:8px;}
+  .ft-section-head h2{font-size:17px;color:var(--text);}
+  .ft-section-head .hint{font-size:12px;color:var(--text-faint);}
+  .ft-section-sub{margin:-4px 0 14px;font-size:13px;color:var(--text-dim);}
+
+  .ft-scen-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:14px;}
+  .ft-scen-card{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:14px;}
+  .ft-scen-card .name{font-family:'Source Serif 4',serif;font-weight:600;font-size:15px;color:var(--text);display:flex;align-items:center;gap:7px;}
+  .ft-scen-card .name .sw{width:9px;height:9px;border-radius:50%;display:inline-block;}
+  .ft-scen-card .desc{font-size:12px;color:var(--text-faint);margin:3px 0 12px;line-height:1.4;}
+  .ft-scen-card .row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:6px 0;border-top:1px solid var(--line);font-size:13px;}
+  .ft-scen-card .row:first-of-type{border-top:none;}
+  .ft-scen-card .row .k{color:var(--text-dim);}
+  .ft-scen-card .row .v{font-family:'IBM Plex Mono',monospace;color:var(--text);text-align:right;}
+  .ft-scen-card .row .v.warn{color:var(--neg);}
+  .ft-scen-card .row .v small{display:block;font-family:'IBM Plex Sans',sans-serif;color:var(--text-faint);font-size:11px;margin-top:1px;}
+  .ft-scen-apply{margin-top:14px;width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text-dim);padding:9px;border-radius:3px;font-size:12px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;}
+  .ft-scen-apply:hover{border-color:var(--accent);color:var(--accent);}
+
+  .ft-row{display:grid;grid-template-columns:1fr 100px 130px 130px 32px;gap:8px;align-items:center;padding:7px 0;}
+  .ft-inc-item{border-bottom:1px solid var(--line);}
+  .ft-inc-item .ft-row{border-bottom:none;}
+  .ft-inc-end-hint{font-style:italic;color:var(--text-faint);font-size:12px;margin-top:10px;}
+  .ft-row.head{color:var(--text-faint);font-size:11px;padding-bottom:6px;border-bottom:1px solid var(--line);}
+  .ft-row input, .ft-row select{background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:7px 8px;border-radius:3px;width:100%;}
+  .ft-row input::placeholder{color:var(--text-faint);font-family:'IBM Plex Sans',sans-serif;}
+  .ft-row select{font-family:'IBM Plex Sans',sans-serif;}
+  .ft-row button.del{background:transparent;border:1px solid var(--line);color:var(--text-faint);width:30px;height:30px;border-radius:3px;cursor:pointer;font-size:14px;line-height:1;}
+  .ft-row button.del:hover{border-color:var(--neg);color:var(--neg);}
+
+  .ft-add{margin-top:8px;background:transparent;border:1px dashed var(--line);color:var(--text-dim);padding:9px 12px;border-radius:3px;font-size:13px;cursor:pointer;width:100%;text-align:left;font-family:'IBM Plex Sans',sans-serif;}
+  .ft-add:hover{border-color:var(--accent);color:var(--accent);}
+
+  .ft-savings-row{display:flex;gap:10px;align-items:center;}
+  .ft-savings-row label{font-size:13px;color:var(--text-dim);min-width:110px;}
+  .ft-savings-row input{background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:14px;padding:8px 10px;border-radius:3px;width:160px;}
+  .ft-savings-row + .ft-savings-row{margin-top:10px;}
+  .ft-goal-card{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:16px;}
+  .ft-goal-card .gname{font-family:'Source Serif 4',serif;font-weight:600;font-size:16px;color:var(--text);}
+  .ft-goal-card .gtarget{font-family:'IBM Plex Mono',monospace;font-size:22px;color:var(--accent);margin-top:2px;}
+  .ft-goal-card .row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid var(--line);font-size:13px;margin-top:10px;}
+  .ft-goal-card .row:first-of-type{margin-top:12px;}
+  .ft-goal-card .row .k{color:var(--text-dim);}
+  .ft-goal-card .row .v{font-family:'IBM Plex Mono',monospace;color:var(--text);text-align:right;}
+  .ft-goal-card .row.highlight{background:var(--surface-2);margin:10px -16px -16px;padding:12px 16px;border-top:1px solid var(--line);border-radius:0 0 4px 4px;}
+  .ft-goal-card .row.highlight .v{color:var(--accent);}
+  .ft-goal-card .row.highlight .v small{display:block;color:var(--text-faint);font-family:'IBM Plex Sans',sans-serif;font-size:11px;margin-top:2px;}
+  .ft-receipt-log{margin-top:10px;}
+  .ft-receipt-log-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;}
+  .ft-receipt-log-item .meta{color:var(--text-dim);}
+  .ft-receipt-log-item .amt{font-family:'IBM Plex Mono',monospace;color:var(--neg);}
+  .ft-receipt-log-item button{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:12px;text-decoration:underline;}
+
+  .ft-cmp-form{display:grid;grid-template-columns:1fr 120px 140px auto;gap:8px;margin-bottom:14px;}
+  .ft-cmp-form input{background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:8px;border-radius:3px;width:100%;}
+  .ft-cmp-form input[type=text]{font-family:'IBM Plex Sans',sans-serif;}
+  .ft-cmp-form label{font-size:11px;color:var(--text-dim);display:flex;flex-direction:column;gap:4px;}
+  .ft-cmp-empty{font-size:13px;color:var(--text-faint);padding:6px 0;}
+  .ft-empty{font-size:13px;color:var(--text-faint);padding:10px 0;}
+  .ft-visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+
+  .ft-horizon{display:flex;gap:6px;flex-wrap:wrap;}
+  .ft-horizon button{background:var(--surface-2);border:1px solid var(--line);color:var(--text-dim);padding:6px 12px;border-radius:3px;font-size:12px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;}
+  .ft-horizon button.active{border-color:var(--accent);color:var(--accent);}
+
+  .ft-chart-wrap{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:18px 12px 8px;}
+  .ft-chart-legend{display:flex;gap:18px;font-size:12px;color:var(--text-dim);padding:0 6px 10px;flex-wrap:wrap;}
+  .ft-chart-legend span{display:inline-flex;align-items:center;gap:6px;}
+  .ft-chart-legend i{width:14px;height:2px;display:inline-block;}
+  .ft-band-note{font-size:12px;color:var(--text-dim);margin-top:8px;padding:0 6px;}
+
+  .ft-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px;}
+  .ft-summary .card{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:12px;}
+  .ft-summary .card .k{font-size:11px;color:var(--text-faint);margin-bottom:4px;}
+  .ft-summary .card .v{font-family:'IBM Plex Mono',monospace;font-size:16px;}
+  .ft-summary .card.warn .v{color:var(--neg);}
+
+  .ft-whatif{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:16px;}
+  .ft-whatif .form{display:grid;grid-template-columns:1fr 110px 130px auto;gap:8px;margin-bottom:10px;}
+  .ft-whatif .form input{background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:8px;border-radius:3px;width:100%;}
+  .ft-whatif .form input[type=text]{font-family:'IBM Plex Sans',sans-serif;}
+  .ft-whatif .form button{background:var(--accent);border:none;color:var(--accent-contrast);font-weight:600;border-radius:3px;padding:8px 14px;cursor:pointer;font-size:13px;font-family:'IBM Plex Sans',sans-serif;}
+  .ft-whatif-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px;}
+  .ft-whatif-item .amt{font-family:'IBM Plex Mono',monospace;color:var(--neg);}
+  .ft-whatif-item button{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:13px;}
+  .ft-whatif-result{margin-top:12px;padding:12px;background:var(--surface-2);border-radius:3px;font-size:13px;color:var(--text-dim);line-height:1.6;}
+  .ft-whatif-result b{color:var(--text);font-family:'IBM Plex Mono',monospace;}
+
+  .ft-exp-card{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:12px 14px;margin-bottom:8px;}
+  .ft-exp-top{display:grid;grid-template-columns:1fr 130px 130px 32px;gap:8px;align-items:center;}
+  .ft-exp-top input, .ft-exp-top select{background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:7px 8px;border-radius:3px;width:100%;}
+  .ft-exp-top select.name-freq{font-family:'IBM Plex Sans',sans-serif;}
+  .ft-exp-top button.del{background:transparent;border:1px solid var(--line);color:var(--text-faint);width:30px;height:30px;border-radius:3px;cursor:pointer;font-size:14px;}
+  .ft-exp-top button.del:hover{border-color:var(--neg);color:var(--neg);}
+  .ft-mode-toggle{display:flex;gap:6px;margin-top:10px;}
+  .ft-mode-toggle button{background:var(--surface-2);border:1px solid var(--line);color:var(--text-faint);font-size:11px;padding:4px 10px;border-radius:3px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;}
+  .ft-mode-toggle button.active{border-color:var(--accent);color:var(--accent);}
+  .ft-end-row{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid var(--line);flex-wrap:wrap;}
+  .ft-end-row .lbl{font-size:11px;color:var(--text-faint);}
+  .ft-end-row .ft-mode-toggle{margin-top:0;}
+  .ft-mode-body{margin-top:10px;}
+  .ft-mode-body.fixed,.ft-mode-body.range{display:flex;gap:14px;align-items:center;flex-wrap:wrap;}
+  .ft-mode-body label{font-size:12px;color:var(--text-dim);}
+  .ft-mode-body input.small{width:130px;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:6px 8px;border-radius:3px;}
+  .ft-avg-display{font-size:12px;color:var(--text-dim);margin-bottom:8px;}
+  .ft-avg-display b{font-family:'IBM Plex Mono',monospace;color:var(--text);}
+  .ft-log-form{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+  .ft-log-form input{background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:12px;padding:6px 8px;border-radius:3px;}
+  .ft-log-form button{background:var(--surface-2);border:1px solid var(--line);color:var(--text-dim);border-radius:3px;padding:6px 10px;font-size:12px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;}
+  .ft-log-list{max-height:110px;overflow-y:auto;}
+  .ft-log-item{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--text-dim);padding:4px 0;border-bottom:1px solid var(--line);}
+  .ft-log-item button{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:11px;}
+
+  .ft-footer{display:flex;justify-content:space-between;align-items:center;margin-top:6px;}
+  .ft-save-state{font-size:12px;color:var(--text-faint);}
+  .ft-save-state.warn{color:var(--neg);font-weight:600;}
+  .ft-reset{background:none;border:none;color:var(--text-faint);font-size:12px;cursor:pointer;text-decoration:underline;}
+
+  @media (max-width:480px){
+    .ft-dash-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .ft-dash-grid .card:nth-child(n){grid-column:auto;}
+    .ft-header{flex-direction:column;}
+    .ft-row{grid-template-columns:1fr 80px 44px;grid-template-areas:"name amt del" "freq date del";}
+    .ft-row input:nth-child(1){grid-area:name;}
+    .ft-row select{grid-area:freq;}
+    .ft-row input:nth-child(3){grid-area:amt;}
+    .ft-row input:nth-child(4){grid-area:date;}
+    .ft-row button.del{grid-area:del;}
+    .ft-row.head{display:none;}
+    .ft-exp-top{grid-template-columns:1fr 1fr;grid-template-areas:"name name" "freq date" "del del";}
+    .ft-exp-top input:nth-child(1){grid-area:name;}
+    .ft-exp-top select{grid-area:freq;}
+    .ft-exp-top input[type=date]{grid-area:date;}
+    .ft-exp-top button.del{grid-area:del;justify-self:end;}
+    .ft-whatif .form{grid-template-columns:1fr;}
+    .ft-summary{grid-template-columns:1fr;}
+    .ft-cmp-form{grid-template-columns:1fr;}
+    .ft-savings-row{flex-wrap:wrap;}
+    .ft-savings-row label{min-width:0;flex-basis:100%;}
+    .ft-savings-row input{width:100%;}
+  }
+  @media (max-width:360px){
+    .ft-end-row .lbl{flex-basis:100%;}
+  }
+</style>
+
+<div class="ft-root theme-dark" id="ftRoot">
+<div class="ft-inner">
+  <div class="ft-header">
+    <div>
+      <div class="ft-brand">
+        <svg class="ft-mark" viewBox="0 0 24 24" width="22" height="22" fill="none"><rect x="3" y="16" width="18" height="4" rx="1" fill="currentColor"/><rect x="6" y="10" width="12" height="4" rx="1" fill="currentColor" opacity="0.7"/><rect x="9" y="4" width="6" height="4" rx="1" fill="currentColor" opacity="0.45"/></svg>
+        <h1>Fundament</h1>
+      </div>
+      <p class="tagline">Know what your money can do.</p>
+    </div>
+    <div class="ft-theme-toggle" id="themeToggle">
+      <button data-theme="dark" class="active" aria-pressed="true">Dark</button>
+      <button data-theme="light" aria-pressed="false">Light</button>
+    </div>
+  </div>
+
+  <div class="ft-balance" id="ftBalanceBox">
+    <span class="num" id="ftCurrentSavings">₱0</span>
+    <span class="lbl">on hand today</span>
+  </div>
+
+  <div class="ft-dash-grid" id="dashboardCards"></div>
+
+  <section>
+    <div class="ft-section-head"><h2>Starting point</h2></div>
+    <div class="ft-savings-row">
+      <label>Current savings</label>
+      <input type="number" id="inpSavings" placeholder="0" step="0.01">
+    </div>
+    <div class="ft-savings-row">
+      <label>Goal name</label>
+      <input type="text" id="inpGoalName" placeholder="optional, e.g. Emergency Fund">
+    </div>
+    <div class="ft-savings-row">
+      <label>Goal amount</label>
+      <input type="number" id="inpGoal" placeholder="optional, e.g. 150000" step="0.01">
+    </div>
+    <div class="ft-goal-card" id="goalCard" style="display:none"></div>
+  </section>
+
+  <section>
+    <div class="ft-section-head"><h2>Record a receipt</h2><span class="hint">manual entry only; deducts from current savings</span></div>
+    <div class="ft-receipt">
+      <div id="receiptConfirm" style="display:block;margin-top:10px;">
+        <div class="ft-band-note" style="margin-bottom:8px;">Automatic receipt scanning is unavailable in this public release. Enter the receipt details below.</div>
+        <div class="ft-cmp-form">
+          <input type="text" id="rcMerchant" placeholder="Merchant" aria-label="Merchant name">
+          <input type="number" id="rcAmount" placeholder="Amount" step="0.01" aria-label="Receipt amount">
+          <input type="date" id="rcDate" aria-label="Receipt date">
+          <button id="rcConfirmBtn">Deduct</button>
+        </div>
+        <button class="ft-reset" id="rcCancelBtn" style="margin-top:6px;">Cancel</button>
+      </div>
+      <div id="receiptLog"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="ft-section-head"><h2>Income</h2><span class="hint">recurring inflows</span></div>
+    <div class="ft-row head"><span>Source</span><span>Amount</span><span>Frequency</span><span>Next date</span><span></span></div>
+    <div id="incomeRows"></div>
+    <button class="ft-add" id="addIncomeBtn">+ add income source</button>
+  </section>
+
+  <section>
+    <div class="ft-section-head"><h2>Spending</h2><span class="hint">recurring or one-time</span></div>
+    <div id="expenseCards"></div>
+    <button class="ft-add" id="addExpenseBtn">+ add a cost</button>
+  </section>
+
+  <section>
+    <div class="ft-section-head">
+      <h2>Projection</h2>
+      <div class="ft-horizon" id="horizonButtons">
+        <button data-m="6" aria-pressed="false">6 mo</button>
+        <button data-m="12" class="active" aria-pressed="true">12 mo</button>
+        <button data-m="24" aria-pressed="false">24 mo</button>
+        <button data-m="custom" aria-pressed="false">Custom</button>
+        <input type="number" id="customHorizonInput" min="1" placeholder="months" style="display:none;width:70px;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:12px;padding:5px 8px;border-radius:3px;">
+      </div>
+    </div>
+    <div class="ft-chart-wrap">
+      <div class="ft-chart-legend">
+        <span><i style="background:var(--text-dim)"></i>expected</span>
+        <span id="legendWhatif" style="display:none"><i style="background:var(--accent)"></i>with what-if</span>
+        <span id="legendBand" style="display:none"><i style="background:var(--accent);opacity:.4"></i>best/worst range</span>
+        <span id="legendGoal" style="display:none"><i style="background:var(--text-dim);opacity:.6"></i>goal</span>
+        <span id="legendEvents" style="display:none"><i style="background:var(--accent);border-radius:50%;width:8px;height:8px;"></i>one-time event</span>
+      </div>
+      <div id="chartHolder"></div>
+      <div class="ft-band-note" id="bandNote" style="display:none"></div>
+    </div>
+    <div class="ft-summary" id="summaryCards"></div>
+  </section>
+
+  <section>
+    <div class="ft-section-head"><h2>What if I buy this?</h2></div>
+    <p class="ft-section-sub">See how a purchase changes your savings trajectory.</p>
+    <div class="ft-whatif">
+      <div class="form">
+        <input type="text" id="wiLabel" placeholder="Purchase name (e.g. new laptop)" aria-label="Purchase name">
+        <input type="number" id="wiAmount" placeholder="Amount" step="0.01" aria-label="Purchase amount">
+        <input type="date" id="wiDate" aria-label="Purchase date">
+        <button id="wiAddBtn">Add</button>
+      </div>
+      <div id="wiList"></div>
+
+      <div id="cmpEmpty" class="ft-cmp-empty">Add a purchase above to compare buying now, waiting, and installments.</div>
+
+      <div id="cmpBlock" style="display:none">
+        <div class="ft-end-row" style="border-top:none;padding-top:0;margin-top:16px;">
+          <span class="lbl">Split installments over</span>
+          <input type="number" id="instMonths" min="2" value="6" aria-label="Number of months to split installments over" style="width:64px;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;padding:5px 8px;border-radius:3px;">
+          <span class="lbl">months</span>
+        </div>
+        <div class="ft-chart-wrap" style="margin-top:10px;">
+          <div class="ft-chart-legend" id="cmpLegend"></div>
+          <div id="cmpChartHolder"></div>
+        </div>
+        <div id="cmpNote" class="ft-band-note"></div>
+        <div id="cmpCards" class="ft-scen-grid"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="ft-footer">
+    <span class="ft-save-state" id="saveState">Loading...</span>
+    <button id="exportBackupBtn">Export backup</button>
+    <button id="importBackupBtn">Import backup</button>
+    <input id="backupFileInput" type="file" accept="application/json,.json" class="ft-visually-hidden">
+    <button class="ft-reset" id="resetBtn">Reset all data</button>
+  </div>
+</div>
+</div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'fundament-ledger-data-v2';
+  const LEGACY_STORAGE_KEYS = ['ledger-data-v2','fundament-ledger-data-v1','ledger-data-v1'];
+  const FUNDAMENT_STORAGE_KEYS = [STORAGE_KEY, ...LEGACY_STORAGE_KEYS];
+  const RECOVERY_STORAGE_SUFFIX = '-recovery';
+  const BACKUP_FORMAT = 'fundament-backup';
+  const BACKUP_SCHEMA_VERSION = 1;
+  const storage = window.storage || (window.storage = {
+    get: async (key) => {
+      const value = window.localStorage.getItem(key);
+      return value === null ? null : { key, value, shared:false };
+    },
+    set: async (key, value) => {
+      window.localStorage.setItem(key, value);
+      return { key, value, shared:false };
+    },
+    delete: async (key) => {
+      window.localStorage.removeItem(key);
+      return { key, deleted:true, shared:false };
+    },
+    list: async () => ({ keys: Object.keys(window.localStorage) })
+  });
+  function defaultData(){
+    return { savings:0, savingsGoal:0, savingsGoalName:'', income:[], expenses:[], whatifs:[], horizonMonths:12, horizonIsCustom:false, theme:'dark', installmentMonths:6, receiptLog:[] };
+  }
+  let data = defaultData();
+  let idCounter = 1;
+  const newId = () => 'i' + (idCounter++);
+  const bumpIdCounter = (id) => { const n = parseInt(String(id).replace(/^i/,''),10); if(!isNaN(n) && n>=idCounter) idCounter=n+1; };
+  function setSaveState(message, warning){
+    const el = document.getElementById('saveState');
+    el.textContent = message;
+    el.classList.toggle('warn', !!warning);
+  }
+
+  const fmt = (n) => {
+    const neg = n < 0;
+    const v = Math.abs(n || 0);
+    const [intStr, decStr] = v.toFixed(2).split('.');
+    const grouped = intStr.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return (neg ? '-₱' : '₱') + grouped + '.' + decStr;
+  };
+  const escapeHTML = (value) => String(value == null ? '' : value).replace(/[&<>'"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[ch]));
+  const todayISO = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  };
+  const shortDate = (d) => d.toLocaleDateString('en-PH', {
+    month:'short', day:'numeric',
+    year: d.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+  });
+
+  // Clamps to the last real day of the target month when the source day doesn't exist there
+  // (e.g. day 31 in a 30-day month). Important, deliberate consequence: because every recurrence
+  // path (generateOccurrenceDates's 'never'/'date' walk AND its 'count' loop) calls this
+  // repeatedly on its OWN PREVIOUS result rather than re-deriving from the original start date,
+  // a clamp is permanent, not just for the short month it happened in. A monthly item dated the
+  // 31st clamps to the 28th/29th in February and then STAYS on the 28th/29th in every month after
+  // that, even ones with 31 days (Mar, May, Jul, Aug, Oct, Dec) that could have fit the original
+  // day. This is a deterministic, internally consistent convention (identical for income,
+  // expenses, fixed-count, and date-bound recurrence — there is no divergent path), not a bug;
+  function addMonths(d, n){
+    const day = d.getDate();
+    const nd = new Date(d.getFullYear(), d.getMonth()+n, 1);
+    const lastDay = new Date(nd.getFullYear(), nd.getMonth()+1, 0).getDate();
+    nd.setDate(Math.min(day, lastDay));
+    return nd;
+  }
+  function addInterval(date, freq){
+    const d = new Date(date.getTime());
+    if (freq === 'weekly') { d.setDate(d.getDate()+7); return d; }
+    if (freq === 'biweekly') { d.setDate(d.getDate()+14); return d; }
+    if (freq === 'quarterly') { return addMonths(d,3); }
+    if (freq === 'annual') { return addMonths(d,12); }
+    return addMonths(d,1);
+  }
+  function parseISO(s){
+    if(!s) return new Date();
+    const [y,m,dd] = s.split('-').map(Number);
+    return new Date(y, m-1, dd);
+  }
+  function generateOccurrenceDates(startISO, freq, horizonEnd, endConfig, options){
+    const start = parseISO(startISO);
+    const today = new Date(); today.setHours(0,0,0,0);
+    const out = [];
+    const countMode = options && options.countMode ? options.countMode : 'scheduled';
+    if (freq === 'once'){
+      if (start > today && start <= horizonEnd) out.push(start);
+      return out;
+    }
+    if (endConfig && endConfig.type === 'count'){
+      const total = Math.max(0, parseInt(endConfig.count,10)||0);
+      let cur = new Date(start.getTime());
+      if (countMode === 'futureRemaining'){
+        let guard = 0;
+        while (cur <= today && guard < 2000){ cur = addInterval(cur, freq); guard++; }
+        for (let i=0;i<total && cur <= horizonEnd;i++){
+          out.push(new Date(cur.getTime()));
+          cur = addInterval(cur, freq);
+        }
+      } else {
+        for (let i=0;i<total;i++){
+          if (cur > today && cur <= horizonEnd) out.push(new Date(cur.getTime()));
+          cur = addInterval(cur, freq);
+        }
+      }
+      return out;
+    }
+    let effectiveEnd = horizonEnd;
+    if (endConfig && endConfig.type === 'date' && endConfig.date){
+      const ed = parseISO(endConfig.date);
+      if (ed < effectiveEnd) effectiveEnd = ed;
+    }
+    let cur = new Date(start.getTime());
+    let guard = 0;
+    while (cur <= today && guard < 2000){ cur = addInterval(cur, freq); guard++; }
+    guard = 0;
+    while (cur <= effectiveEnd && guard < 2000){ out.push(new Date(cur.getTime())); cur = addInterval(cur, freq); guard++; }
+    return out;
+  }
+
+  function computeItemBounds(item){
+    if (item.mode === 'range'){
+      const a = parseFloat(item.min)||0, b = parseFloat(item.max)||0;
+      const lo = Math.min(a,b), hi = Math.max(a,b);
+      return { expected:(lo+hi)/2, min:lo, max:hi };
+    }
+    if (item.mode === 'average'){
+      const amts = (item.history||[]).map(h=>parseFloat(h.amount)||0).filter(a=>a>0);
+      if (!amts.length) return { expected:0, min:0, max:0 };
+      const recent = amts.slice(-6);
+      const avg = recent.reduce((a,b)=>a+b,0)/recent.length;
+      return { expected:avg, min:Math.min(...amts), max:Math.max(...amts) };
+    }
+    const amt = Math.abs(parseFloat(item.amount)||0);
+    return { expected:amt, min:amt, max:amt };
+  }
+  function hasVariableItems(){
+    return data.expenses.some(e => e.mode==='range' || (e.mode==='average' && (e.history||[]).length>0));
+  }
+
+  function buildProjection(variant, extraEvents, horizonMonthsOverride){
+    const today = new Date(); today.setHours(0,0,0,0);
+    let horizonEnd = addMonths(today, horizonMonthsOverride || data.horizonMonths);
+
+    // A confirmed one-time future expense must not be silently dropped just because it falls past
+    // whatever horizon the user happens to have selected for viewing — that would let a real,
+    // known bill disappear from every figure that reads off this projection. A hypothetical
+    // what-if event already gets this treatment; one-time Spending entries need the same rule,
+    // computed here before occurrences are generated so the bounded recurring-item loop below
+    // uses the correct, already-extended horizon.
+    const onceDates = data.expenses
+      .filter(e => e.freq === 'once')
+      .map(e => parseISO(e.date))
+      .filter(d => d > today);
+    const forcingDates = onceDates.concat((extraEvents||[]).map(e => e.date));
+    if (forcingDates.length){
+      const maxForcing = forcingDates.reduce((m,d) => d > m ? d : m, horizonEnd);
+      if (maxForcing > horizonEnd) horizonEnd = maxForcing;
+    }
+
+    let events = [];
+    data.income.forEach(inc => {
+      const amt = Math.abs(parseFloat(inc.amount)||0);
+      generateOccurrenceDates(inc.date, inc.freq, horizonEnd, inc.end, { countMode:'futureRemaining' }).forEach(d => events.push({date:d, amount:amt}));
+    });
+    data.expenses.forEach(exp => {
+      const b = computeItemBounds(exp);
+      const val = variant === 'worst' ? b.max : variant === 'best' ? b.min : b.expected;
+      generateOccurrenceDates(exp.date, exp.freq, horizonEnd, exp.end).forEach(d => events.push({date:d, amount:-val}));
+    });
+    if (extraEvents && extraEvents.length){
+      events = events.concat(extraEvents);
+    }
+    const dailyEvents = new Map();
+    events.forEach(event => {
+      const date = event.date;
+      const key = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+      if (!dailyEvents.has(key)){
+        dailyEvents.set(key, { date:new Date(date.getFullYear(), date.getMonth(), date.getDate()), amount:0 });
+      }
+      dailyEvents.get(key).amount += event.amount;
+    });
+    events = [...dailyEvents.values()].sort((a,b) => a.date - b.date);
+
+    let bal = data.savings || 0;
+    const points = [{date: today, balance: bal}];
+    events.forEach(e => { bal += e.amount; points.push({date: e.date, balance: bal}); });
+    points.push({date: horizonEnd, balance: bal});
+
+    let min = points[0].balance, minDate = points[0].date;
+    points.forEach(p => { if (p.balance < min){ min = p.balance; minDate = p.date; } });
+    let firstNegative = null;
+    for (const p of points){ if (p.balance < 0){ firstNegative = p.date; break; } }
+    return { points, endBalance: bal, min, minDate, firstNegative, horizonEnd, today };
+  }
+
+  function findGoalCrossing(points, goal){
+    if (!goal || goal <= 0) return null;
+    if (points[0].balance >= goal) return { alreadyMet:true, date: points[0].date };
+    for (const p of points){ if (p.balance >= goal) return { date: p.date }; }
+    return null;
+  }
+  function monthsBetween(d1, d2){
+    const days = (d2.getTime() - d1.getTime()) / 86400000;
+    return Math.round(days / 30.4368);
+  }
+  function balanceAtDate(proj, targetDate){
+    let bal = proj.points[0].balance;
+    for (const p of proj.points){ if (p.date <= targetDate) bal = p.balance; else break; }
+    return bal;
+  }
+  const GOAL_CAP_MONTHS = 240; // 20 years — goal math is deliberately not limited by the chart's horizon selector
+  function computeGoalCrossing(extraEvents){
+    const goal = parseFloat(data.savingsGoal)||0;
+    if (goal <= 0) return { applicable:false };
+    const proj = buildProjection('expected', extraEvents, GOAL_CAP_MONTHS);
+    const cross = findGoalCrossing(proj.points, goal);
+    if (!cross) return { applicable:true, reached:false };
+    if (cross.alreadyMet) return { applicable:true, reached:true, alreadyMet:true, months:0, date:cross.date };
+    return { applicable:true, reached:true, months: monthsBetween(proj.today, cross.date), date: cross.date };
+  }
+  function formatGoalCell(g){
+    if (!g.applicable) return '—';
+    if (!g.reached) return 'Not reachable within 20 years';
+    if (g.alreadyMet) return 'Already reached';
+    return `About ${g.months} mo away <small style="color:var(--text-faint)">(${shortDate(g.date)})</small>`;
+  }
+
+  function renderGoalCard(){
+    const el = document.getElementById('goalCard');
+    const goal = parseFloat(data.savingsGoal)||0;
+    if (goal <= 0){ el.style.display='none'; return; }
+    el.style.display = 'block';
+    const current = data.savings || 0;
+    const name = (typeof data.savingsGoalName === 'string' ? data.savingsGoalName : '').trim() || 'Savings goal';
+    const remaining = Math.max(goal - current, 0);
+    const baseline = computeGoalCrossing(null);
+
+    let expectedLine;
+    if (baseline.alreadyMet) expectedLine = 'Already reached';
+    else if (!baseline.reached) expectedLine = 'Not reachable within 20 years';
+    else expectedLine = `${shortDate(baseline.date)} <small style="color:var(--text-faint)">(~${baseline.months} mo)</small>`;
+
+    let html = `
+      <div class="gname">${escapeHTML(name)}</div>
+      <div class="gtarget">${fmt(goal)}</div>
+      <div class="row"><span class="k">Current</span><span class="v">${fmt(current)}</span></div>
+      <div class="row"><span class="k">Remaining</span><span class="v">${fmt(remaining)}</span></div>
+      <div class="row"><span class="k">Expected</span><span class="v">${expectedLine}</span></div>
+    `;
+
+    if (data.whatifs.length && baseline.reached && !baseline.alreadyMet){
+      const extra = data.whatifs.map(w => ({ date: parseISO(w.date), amount: -Math.abs(parseFloat(w.amount)||0) }));
+      const withWi = computeGoalCrossing(extra);
+      let withLine, deltaLine;
+      if (!withWi.reached){
+        withLine = 'Not reachable within 20 years';
+        deltaLine = 'No longer reachable with this purchase';
+      } else {
+        withLine = shortDate(withWi.date);
+        const delta = withWi.months - baseline.months;
+        deltaLine = delta > 0 ? `Goal moves back about ${delta} month${delta>1?'s':''}`
+          : delta < 0 ? `Goal moves up about ${Math.abs(delta)} month${delta<-1?'s':''}`
+          : `Doesn't change your goal timing`;
+      }
+      html += `<div class="row highlight"><span class="k">With this purchase</span><span class="v">${withLine}<small>${deltaLine}</small></span></div>`;
+    }
+    el.innerHTML = html;
+  }
+
+  function buildScenarios(){
+    if (!data.whatifs.length) return null;
+    const months = Math.max(2, parseInt(data.installmentMonths,10)||6);
+
+    const originalEvents = data.whatifs.map(w => ({ date: parseISO(w.date), amount: -Math.abs(parseFloat(w.amount)||0) }));
+    const shiftedEvents = data.whatifs.map(w => ({ date: addMonths(parseISO(w.date),1), amount: -Math.abs(parseFloat(w.amount)||0) }));
+    const instEvents = [];
+    data.whatifs.forEach(w => {
+      const amt = Math.abs(parseFloat(w.amount)||0);
+      const per = amt / months;
+      let cur = parseISO(w.date);
+      for (let i=0;i<months;i++){ instEvents.push({date:new Date(cur.getTime()), amount:-per}); cur = addMonths(cur,1); }
+    });
+
+    const origDates = data.whatifs.map(w => parseISO(w.date));
+    const maxOrig = new Date(Math.max(...origDates.map(d=>d.getTime())));
+    const minOrig = new Date(Math.min(...origDates.map(d=>d.getTime())));
+    const maxShifted = addMonths(maxOrig, 1);
+
+    const defs = [
+      { key:'A', name:'Buy as planned', desc:'What happens if you buy it on the date above.', color:cssVar('--scenA'), extra:originalEvents, refDate:maxOrig },
+      { key:'B', name:"Don't buy", desc:'What happens if you keep your current plan.', color:cssVar('--scenB'), extra:[], refDate:maxOrig },
+      { key:'C', name:'Buy next month', desc:'The cost of waiting one month.', color:cssVar('--scenC'), extra:shiftedEvents, refDate:maxShifted },
+      { key:'D', name:`Installments (${months} mo)`, desc:`What happens if you spread it over ${months} months instead.`, color:cssVar('--scenD'), extra:instEvents, refDate:minOrig }
+    ];
+    const built = defs.map(s => {
+      const proj = buildProjection('expected', s.extra);
+      const goal = computeGoalCrossing(s.extra);
+      return Object.assign(s, { proj, goal, balanceAtPurchase: balanceAtDate(proj, s.refDate) });
+    });
+
+    // Each scenario's own horizon may have auto-extended by a different amount (e.g. installments
+    // finish later than a single lump purchase). Pad shorter ones flat to a shared end so the
+    // comparison chart and "end balance" column all read off the same point in time.
+    const sharedEnd = new Date(Math.max(...built.map(s => s.proj.horizonEnd.getTime())));
+    built.forEach(s => {
+      if (s.proj.horizonEnd.getTime() < sharedEnd.getTime()){
+        s.proj.points.push({ date: sharedEnd, balance: s.proj.endBalance });
+        s.proj.horizonEnd = sharedEnd;
+      }
+    });
+    return built;
+  }
+
+  function drawCompareChart(scenarios){
+    const w = 660, h = 240, padR = 14, padT = 14, padB = 24;
+    const goal = parseFloat(data.savingsGoal)||0;
+    let allPts = [];
+    scenarios.forEach(s => allPts = allPts.concat(s.proj.points));
+    let minY = Math.min(0, ...allPts.map(p=>p.balance));
+    let maxY = Math.max(0, goal || 0, ...allPts.map(p=>p.balance));
+    const range = maxY - minY || 1;
+    const gridVals = [0,1,2,3,4].map(i => minY + (range*i/4));
+    const padL = Math.max(50, ...gridVals.map(v => estimateLabelWidth(fmt(v), 10))) + 16;
+    const t0 = scenarios[0].proj.today.getTime(), t1 = scenarios[0].proj.horizonEnd.getTime();
+    const x = (d) => padL + ((d.getTime()-t0)/(t1-t0)) * (w-padL-padR);
+    const y = (v) => padT + (1 - (v-minY)/range) * (h-padT-padB);
+    const path = (pts) => pts.map((p,i) => (i===0?'M':'L') + x(p.date).toFixed(1) + ',' + y(p.balance).toFixed(1)).join(' ');
+    const lineColor = cssVar('--line'), faint = cssVar('--text-faint'), dim = cssVar('--text-dim');
+
+    let svg = `<svg viewBox="0 0 ${w} ${h}" width="100%" style="display:block">`;
+    for (let i=0;i<=4;i++){
+      const val = gridVals[i];
+      const gy = y(val).toFixed(1);
+      svg += `<line x1="${padL}" y1="${gy}" x2="${w-padR}" y2="${gy}" stroke="${lineColor}" stroke-width="1"/>`;
+      svg += `<text x="${padL-8}" y="${Number(gy)+3}" font-family="IBM Plex Mono" font-size="10" fill="${faint}" text-anchor="end">${fmt(val)}</text>`;
+    }
+    if (minY < 0){ const zy = y(0).toFixed(1); svg += `<line x1="${padL}" y1="${zy}" x2="${w-padR}" y2="${zy}" stroke="${faint}" stroke-width="1" stroke-dasharray="3,3"/>`; }
+    if (goal > 0){
+      const gy = y(goal).toFixed(1);
+      svg += `<line x1="${padL}" y1="${gy}" x2="${w-padR}" y2="${gy}" stroke="${dim}" stroke-width="1" stroke-dasharray="5,3"/>`;
+      svg += `<text x="${w-padR}" y="${Number(gy)-4}" font-family="IBM Plex Mono" font-size="10" fill="${dim}" text-anchor="end">goal</text>`;
+    }
+    scenarios.forEach(s => { svg += `<path d="${path(s.proj.points)}" fill="none" stroke="${s.color}" stroke-width="2"/>`; });
+    svg += `</svg>`;
+    document.getElementById('cmpChartHolder').innerHTML = svg;
+    document.getElementById('cmpLegend').innerHTML = scenarios.map(s => `<span><i style="background:${escapeHTML(s.color)}"></i>${escapeHTML(s.name)}</span>`).join('');
+  }
+
+  function renderCompareCards(scenarios){
+    const goal = parseFloat(data.savingsGoal)||0;
+    const sharedEnd = scenarios[0].proj.horizonEnd;
+    const extended = monthsBetween(new Date(), sharedEnd) > data.horizonMonths;
+    const B = scenarios.find(s => s.key === 'B');
+    const baselineGoal = B.goal;
+
+    const diffs = scenarios.filter(s => s.key !== 'B').map(s => s.proj.endBalance - B.proj.endBalance);
+    const allSameDiff = diffs.length && diffs.every(d => Math.abs(d - diffs[0]) < 0.01);
+
+    let note = '';
+    if (allSameDiff){
+      note += `By ${shortDate(sharedEnd)}, every option leaves you ${fmt(Math.abs(diffs[0]))} lower than not buying, regardless of timing — this model doesn't account for interest, so when you pay doesn't change the final total. What actually differs is when the dip happens and how it lines up with your goal, below.`;
+    }
+    if (extended) note += (note ? '<br>' : '') + `Extended past your ${data.horizonMonths}-month projection to fully cover the installment/delay timeline.`;
+    const noteEl = document.getElementById('cmpNote');
+    noteEl.style.display = note ? 'block' : 'none';
+    noteEl.innerHTML = note;
+
+    document.getElementById('cmpCards').innerHTML = scenarios.map(s => {
+      const diff = s.proj.endBalance - B.proj.endBalance;
+      const rows = [];
+      rows.push(`<div class="row"><span class="k">Projected by ${shortDate(sharedEnd)}</span><span class="v ${s.proj.endBalance<0?'warn':''}">${fmt(s.proj.endBalance)}</span></div>`);
+      if (s.key !== 'B'){
+        rows.push(`<div class="row"><span class="k">Vs. not buying</span><span class="v ${diff<0?'warn':''}">${diff>=0?'+':''}${fmt(diff)}</span></div>`);
+      }
+      rows.push(`<div class="row"><span class="k">Balance right after</span><span class="v">${fmt(s.balanceAtPurchase)}<small>${shortDate(s.refDate)}</small></span></div>`);
+      rows.push(`<div class="row"><span class="k">Lowest point</span><span class="v ${s.proj.min<0?'warn':''}">${fmt(s.proj.min)}<small>${shortDate(s.proj.minDate)}</small></span></div>`);
+      if (goal > 0 && s.goal.applicable){
+        let goalLine = formatGoalCell(s.goal);
+        if (s.key !== 'B' && s.goal.reached && !s.goal.alreadyMet && baselineGoal.reached && !baselineGoal.alreadyMet){
+          const delta = s.goal.months - baselineGoal.months;
+          if (delta > 0) goalLine += `<small>Goal moves back about ${delta} month${delta>1?'s':''}</small>`;
+          else if (delta < 0) goalLine += `<small>Goal moves up about ${Math.abs(delta)} month${delta<-1?'s':''}</small>`;
+          else goalLine += `<small>Doesn't change your goal timing</small>`;
+        } else if (s.key !== 'B' && !s.goal.reached && baselineGoal.reached && !baselineGoal.alreadyMet){
+          goalLine += `<small>No longer reachable in that window</small>`;
+        }
+        rows.push(`<div class="row"><span class="k">Savings goal</span><span class="v">${goalLine}</span></div>`);
+      }
+      const applyLabel = s.key === 'B' ? 'Dismiss (don\u2019t buy)' : 'Apply this scenario';
+      return `<div class="ft-scen-card">
+        <div class="name"><span class="sw" style="background:${escapeHTML(s.color)}"></span>${escapeHTML(s.name)}</div>
+        <div class="desc">${escapeHTML(s.desc)}</div>
+        ${rows.join('')}
+        <button class="ft-scen-apply" data-key="${s.key}">${applyLabel}</button>
+      </div>`;
+    }).join('');
+    document.querySelectorAll('.ft-scen-apply').forEach(btn => {
+      btn.addEventListener('click', () => applyScenario(btn.dataset.key));
+    });
+  }
+
+  // Converts a hypothetical What-If scenario into real planned Spending entries. This never
+  // touches data.savings — a planned future purchase or installment plan is exactly that, a
+  // planned future expense, and only actually reduces Current Savings once it's recorded (via
+  // manual entry or a scanned receipt), consistent with how every other Spending item works.
+  function applyScenario(key){
+    if (!data.whatifs.length) return;
+    const months = Math.max(2, parseInt(data.installmentMonths,10)||6);
+    const count = data.whatifs.length;
+
+    let confirmMsg;
+    if (key === 'B') confirmMsg = `Dismiss ${count} planned purchase${count>1?'s':''}? They'll be removed from What If without creating any Spending entry.`;
+    else if (key === 'A') confirmMsg = `Add ${count} one-time Spending ${count>1?'entries':'entry'} on the date${count>1?'s':''} shown, and clear the What If list?`;
+    else if (key === 'C') confirmMsg = `Add ${count} one-time Spending ${count>1?'entries':'entry'} one month later than planned, and clear the What If list?`;
+    else confirmMsg = `Add ${count} recurring installment ${count>1?'plans':'plan'} (${months} months each), and clear the What If list?`;
+    if (!confirm(confirmMsg)) return;
+
+    if (key === 'A' || key === 'C'){
+      data.whatifs.forEach(w => {
+        const date = key === 'C' ? addMonths(parseISO(w.date), 1) : parseISO(w.date);
+        data.expenses.push({
+          id:newId(), name:w.label||'Planned purchase', amount:Math.abs(parseFloat(w.amount)||0),
+          freq:'once', date: `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`,
+          mode:'fixed', min:0, max:0, history:[], end:{type:'never', date:'', count:''}
+        });
+      });
+    } else if (key === 'D'){
+      data.whatifs.forEach(w => {
+        const amt = Math.abs(parseFloat(w.amount)||0);
+        data.expenses.push({
+          id:newId(), name:`${w.label||'Planned purchase'} (installment)`, amount: amt/months,
+          freq:'monthly', date: w.date,
+          mode:'fixed', min:0, max:0, history:[], end:{type:'count', date:'', count:months}
+        });
+      });
+    }
+    // key === 'B': nothing added — the purchases are simply dismissed.
+
+    data.whatifs = [];
+    renderExpenseCards();
+    renderWhatifs();
+    scheduleSave();
+    recompute();
+  }
+
+  function renderCompare(){
+    const scenarios = buildScenarios();
+    const empty = document.getElementById('cmpEmpty');
+    const block = document.getElementById('cmpBlock');
+    if (!scenarios){
+      empty.style.display = 'block';
+      block.style.display = 'none';
+      return;
+    }
+    empty.style.display = 'none';
+    block.style.display = 'block';
+    drawCompareChart(scenarios);
+    renderCompareCards(scenarios);
+  }
+
+  function cssVar(name){
+    return getComputedStyle(document.getElementById('ftRoot')).getPropertyValue(name).trim();
+  }
+  // Rough monospace width estimate (IBM Plex Mono digits run close to 0.6em) used to size the
+  // left axis gutter to whatever the longest label actually turns out to be, instead of a fixed
+  // guess that breaks the moment balances grow past whatever number I happened to test with.
+  function estimateLabelWidth(text, fontSize){
+    return text.length * fontSize * 0.62;
+  }
+
+  function drawChart(expected, scenario, worst, best){
+    const lineColor = cssVar('--line'), faint = cssVar('--text-faint'), dim = cssVar('--text-dim'), neg = cssVar('--neg'), accent = cssVar('--accent'), bg = cssVar('--bg');
+    const w = 660, h = 220, padR = 14, padT = 14, padB = 24;
+    const goal = parseFloat(data.savingsGoal)||0;
+    let allPts = expected.points.slice();
+    if (scenario) allPts = allPts.concat(scenario.points);
+    if (worst) allPts = allPts.concat(worst.points);
+    if (best) allPts = allPts.concat(best.points);
+    let minY = Math.min(0, ...allPts.map(p=>p.balance));
+    let maxY = Math.max(0, goal || 0, ...allPts.map(p=>p.balance));
+    const range = maxY - minY || 1;
+    const gridVals = [0,1,2,3,4].map(i => minY + (range*i/4));
+    const padL = Math.max(50, ...gridVals.map(v => estimateLabelWidth(fmt(v), 10))) + 16;
+    const ends = [expected.horizonEnd].concat(scenario?[scenario.horizonEnd]:[], worst?[worst.horizonEnd]:[], best?[best.horizonEnd]:[]);
+    const t0 = expected.today.getTime(), t1 = Math.max(...ends.map(d=>d.getTime()));
+    const x = (d) => padL + ( (d.getTime()-t0) / (t1-t0) ) * (w-padL-padR);
+    const y = (v) => padT + (1 - (v-minY)/range) * (h-padT-padB);
+    const path = (pts) => pts.map((p,i) => (i===0?'M':'L') + x(p.date).toFixed(1) + ',' + y(p.balance).toFixed(1)).join(' ');
+
+    const gridLines = [];
+    for (let i=0;i<=4;i++){
+      const val = gridVals[i];
+      const gy = y(val).toFixed(1);
+      gridLines.push(`<line x1="${padL}" y1="${gy}" x2="${w-padR}" y2="${gy}" stroke="${lineColor}" stroke-width="1"/>`);
+      gridLines.push(`<text x="${padL-8}" y="${Number(gy)+3}" font-family="IBM Plex Mono" font-size="10" fill="${faint}" text-anchor="end">${fmt(val)}</text>`);
+    }
+
+    let svg = `<svg viewBox="0 0 ${w} ${h}" width="100%" style="display:block">`;
+    svg += gridLines.join('');
+    if (minY < 0){
+      const zeroY = y(0).toFixed(1);
+      svg += `<line x1="${padL}" y1="${zeroY}" x2="${w-padR}" y2="${zeroY}" stroke="${faint}" stroke-width="1" stroke-dasharray="3,3"/>`;
+    }
+    if (goal > 0){
+      const gy = y(goal).toFixed(1);
+      svg += `<line x1="${padL}" y1="${gy}" x2="${w-padR}" y2="${gy}" stroke="${dim}" stroke-width="1" stroke-dasharray="5,3" opacity="0.6"/>`;
+    }
+    if (worst && best){
+      const bandPath = path(best.points) + ' L ' + [...worst.points].reverse().map(p=>x(p.date).toFixed(1)+','+y(p.balance).toFixed(1)).join(' L ') + ' Z';
+      svg += `<path d="${bandPath}" fill="${accent}" fill-opacity="0.14" stroke="none"/>`;
+      svg += `<path d="${path(worst.points)}" fill="none" stroke="${faint}" stroke-width="1" stroke-dasharray="2,3"/>`;
+      svg += `<path d="${path(best.points)}" fill="none" stroke="${faint}" stroke-width="1" stroke-dasharray="2,3"/>`;
+    }
+    svg += `<path d="${path(expected.points)}" fill="none" stroke="${dim}" stroke-width="2"/>`;
+    if (scenario){
+      const endsNeg = scenario.min < 0;
+      svg += `<path d="${path(scenario.points)}" fill="none" stroke="${endsNeg ? neg : accent}" stroke-width="2"/>`;
+    }
+
+    // "You are here" marker
+    svg += `<circle cx="${x(expected.today).toFixed(1)}" cy="${y(expected.points[0].balance).toFixed(1)}" r="3.5" fill="${dim}" stroke="${bg}" stroke-width="1.5"/>`;
+
+    // Major one-time events (one-time "Spending" entries) plotted on whichever line is currently shown
+    const lineForMarkers = scenario || expected;
+    let markerCount = 0;
+    data.expenses.filter(e => e.freq === 'once').forEach(e => {
+      const t = parseISO(e.date).getTime();
+      if (t <= t0 || t > t1) return;
+      const pt = lineForMarkers.points.find(p => p.date.getTime() === t);
+      if (!pt) return;
+      svg += `<circle cx="${x(pt.date).toFixed(1)}" cy="${y(pt.balance).toFixed(1)}" r="3" fill="${accent}" stroke="${bg}" stroke-width="1"/>`;
+      markerCount++;
+    });
+
+    svg += `</svg>`;
+    document.getElementById('chartHolder').innerHTML = svg;
+    document.getElementById('legendBand').style.display = (worst && best) ? 'inline-flex' : 'none';
+    document.getElementById('legendGoal').style.display = goal > 0 ? 'inline-flex' : 'none';
+    document.getElementById('legendEvents').style.display = markerCount > 0 ? 'inline-flex' : 'none';
+  }
+
+  function renderSummary(main, worst){
+    const cards = [
+      { k:'Balance at horizon end', v: fmt(main.endBalance), warn: main.endBalance<0 },
+      { k:'Lowest point', v: fmt(main.min)+' ('+shortDate(main.minDate)+')', warn: main.min<0 },
+      { k: main.firstNegative ? 'Goes negative on' : 'Stays positive', v: main.firstNegative ? main.minDate && main.firstNegative.toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'}) : 'throughout horizon', warn: !!main.firstNegative }
+    ];
+    if (worst){
+      cards.push({ k:'Worst-case end balance', v: fmt(worst.endBalance), warn: worst.endBalance<0 });
+    }
+    document.getElementById('summaryCards').innerHTML = cards.map(c =>
+      `<div class="card ${c.warn?'warn':''}"><div class="k">${c.k}</div><div class="v">${c.v}</div></div>`
+    ).join('');
+  }
+
+  // Monthly-equivalent conversion for the dashboard snapshot only — the projection engine itself
+  // never uses averaged rates, it always works from real occurrence dates. This is purely a
+  // "what does this look like per month, roughly" summary figure.
+  const MONTHLY_RATE = { weekly:4.345, biweekly:2.1725, monthly:1, quarterly:1/3, annual:1/12 };
+  function hasUpcomingRecurringIncome(inc){
+    if (inc.freq === 'once') return false;
+    const today = new Date(); today.setHours(0,0,0,0);
+    if (inc.end && inc.end.type === 'count') return (parseInt(inc.end.count,10)||0) > 0;
+    let next = parseISO(inc.date);
+    let guard = 0;
+    while (next <= today && guard < 2000){ next = addInterval(next, inc.freq); guard++; }
+    if (guard >= 2000) return false;
+    if (inc.end && inc.end.type === 'date' && inc.end.date && next > parseISO(inc.end.date)) return false;
+    return true;
+  }
+  function computeMonthlyIncome(){
+    return data.income.reduce((sum,inc) => {
+      if (!hasUpcomingRecurringIncome(inc)) return sum;
+      return sum + Math.abs(parseFloat(inc.amount)||0) * (MONTHLY_RATE[inc.freq]||1);
+    }, 0);
+  }
+  function computeMonthlyCommitted(){
+    const checkEnd = addMonths(new Date(), 24);
+    return data.expenses.reduce((sum,exp) => {
+      if (exp.freq === 'once') return sum;
+      const upcoming = generateOccurrenceDates(exp.date, exp.freq, checkEnd, exp.end);
+      if (!upcoming.length) return sum; // already ended, no longer a live commitment
+      const b = computeItemBounds(exp);
+      return sum + b.expected * (MONTHLY_RATE[exp.freq]||1);
+    }, 0);
+  }
+
+  function renderDashboard(expected){
+    const income = computeMonthlyIncome();
+    const committed = computeMonthlyCommitted();
+    const surplus = income - committed;
+    const nextMonthEnd = new Date(expected.today.getFullYear(), expected.today.getMonth()+2, 0);
+    const nextMonthProjection = buildProjection('expected', undefined, 2);
+    const nextMonthBalance = balanceAtDate(nextMonthProjection, nextMonthEnd);
+    const goal = parseFloat(data.savingsGoal)||0;
+    const months = monthsBetween(expected.today, expected.horizonEnd);
+
+    const cards = [
+      { k:'Income each month', v: fmt(income) },
+      { k:'Committed each month', v: fmt(committed) },
+      { k:'Monthly surplus / deficit', v: fmt(surplus), cls: surplus<0?'warn':'good' },
+      { k:`In ${months} month${months===1?'':'s'}`, v: fmt(expected.endBalance), sub:'projected savings', cls: expected.endBalance<0?'warn':'' }
+    ];
+    if (goal > 0){
+      const g = computeGoalCrossing(null);
+      let goalVal;
+      if (g.alreadyMet) goalVal = 'Already reached';
+      else if (!g.reached) goalVal = 'Not reachable within 20 years';
+      else goalVal = `About ${g.months} month${g.months===1?'':'s'} away`;
+      const goalName = (typeof data.savingsGoalName === 'string' ? data.savingsGoalName : '').trim() || 'Savings goal';
+      cards.push({ k:goalName, v: goalVal, sub:`${fmt(goal)} goal`, cls: (!g.reached && !g.alreadyMet) ? 'warn' : 'good' });
+    } else {
+      cards.push({ k:'Goal', v:'Not set' });
+    }
+    cards.push({ k:'Next month', v:fmt(nextMonthBalance), cls:nextMonthBalance<0?'warn':'' });
+    document.getElementById('dashboardCards').innerHTML = cards.map(c =>
+      `<div class="card ${escapeHTML(c.cls||'')}"><div class="k">${escapeHTML(c.k)}</div><div class="v">${escapeHTML(c.v)}</div>${c.sub?`<div class="sub">${escapeHTML(c.sub)}</div>`:''}</div>`
+    ).join('');
+  }
+
+  function recompute(){
+    const expected = buildProjection('expected');
+    let scenario = null;
+    if (data.whatifs.length){
+      const extra = data.whatifs.map(w => ({ date: parseISO(w.date), amount: -Math.abs(parseFloat(w.amount)||0) }));
+      scenario = buildProjection('expected', extra);
+    }
+    let worst=null, best=null;
+    if (hasVariableItems()){ worst = buildProjection('worst'); best = buildProjection('best'); }
+
+    renderDashboard(expected);
+    drawChart(expected, scenario, worst, best);
+    renderSummary(scenario||expected, worst);
+
+    const bandNote = document.getElementById('bandNote');
+    const notes = [];
+    if (worst && best){
+      notes.push(`Range reflects variable items only. Best case ${fmt(best.endBalance)} · worst case ${fmt(worst.endBalance)} at horizon end.`);
+    }
+    const actualMonths = monthsBetween(expected.today, expected.horizonEnd);
+    if (actualMonths > data.horizonMonths){
+      notes.push(`Extended to ${actualMonths} months to fully include a one-time cost dated past your ${data.horizonMonths}-month selection.`);
+    }
+    if (notes.length){ bandNote.style.display='block'; bandNote.innerHTML = notes.join('<br>'); }
+    else { bandNote.style.display='none'; }
+
+    document.getElementById('legendWhatif').style.display = scenario ? 'inline-flex' : 'none';
+
+
+    const bal = data.savings || 0;
+    const box = document.getElementById('ftBalanceBox');
+    box.className = 'ft-balance ' + (bal < 0 ? 'neg' : 'pos');
+    document.getElementById('ftCurrentSavings').textContent = fmt(bal);
+
+    renderGoalCard();
+    renderCompare();
+  }
+
+  // ---- Income rows (fixed only) ----
+  function incomeRowTemplate(item){
+    const freqLabels = { weekly:'Weekly', biweekly:'Biweekly', monthly:'Monthly', quarterly:'Quarterly', annual:'Annual' };
+    const freqs = ['weekly','biweekly','monthly','quarterly','annual'];
+    const opts = freqs.map(f => `<option value="${f}" ${item.freq===f?'selected':''}>${freqLabels[f]}</option>`).join('');
+    const endTypes = [['never','Never'],['date','On date'],['count','Fixed count']];
+    const endBtns = endTypes.map(([t,label]) => `<button data-end="${t}" class="${item.end.type===t?'active':''}" aria-pressed="${item.end.type===t}">${label}</button>`).join('');
+    let endBody = '';
+    if (item.end.type === 'date'){
+      endBody = `<div class="ft-mode-body end"><label>Last payment on <input type="date" class="f-inc-end-date small" value="${escapeHTML(item.end.date||'')}"></label></div>`;
+    } else if (item.end.type === 'count'){
+      endBody = `<div class="ft-mode-body end"><label>Total payments <input type="number" min="0" class="f-inc-end-count small" value="${escapeHTML(item.end.count||'')}"></label><span class="ft-band-note" style="margin:0;padding:0">counted from the next date above, not from today</span></div>`;
+    }
+    return `<div class="ft-inc-item" data-id="${escapeHTML(item.id)}">
+      <div class="ft-row">
+        <input type="text" class="f-name" placeholder="e.g. salary" aria-label="Income source name" value="${escapeHTML(item.name||'')}">
+        <input type="number" class="f-amount" placeholder="0" step="0.01" aria-label="Income amount" value="${escapeHTML(item.amount||'')}">
+        <select class="f-freq" aria-label="Income frequency">${opts}</select>
+        <input type="date" class="f-date" aria-label="Next payment date" value="${escapeHTML(item.date||'')}">
+        <button class="del" title="Remove income source" aria-label="Remove income source">×</button>
+      </div>
+      <div class="ft-end-row"><span class="lbl">Ends</span><div class="ft-mode-toggle mode-toggle-inc-end">${endBtns}</div></div>
+      ${endBody}
+    </div>`;
+  }
+  function renderIncomeRows(){
+    const container = document.getElementById('incomeRows');
+    const head = document.querySelector('.ft-row.head');
+    if (!data.income.length){
+      container.innerHTML = '<div class="ft-empty">No income added yet. Add a paycheck, allowance, or any other regular inflow below.</div>';
+      if (head) head.style.display = 'none';
+      return;
+    }
+    if (head) head.style.display = '';
+    container.innerHTML = data.income.map(incomeRowTemplate).join('');
+    document.querySelectorAll('.ft-inc-item').forEach(wrap => {
+      const id = wrap.dataset.id;
+      const item = data.income.find(x => x.id === id);
+      wrap.querySelector('.f-name').addEventListener('input', e => { item.name=e.target.value; scheduleSave(); });
+      wrap.querySelector('.f-amount').addEventListener('input', e => { item.amount=parseFloat(e.target.value)||0; scheduleSave(); recompute(); });
+      wrap.querySelector('.f-freq').addEventListener('change', e => { item.freq=e.target.value; scheduleSave(); recompute(); });
+      wrap.querySelector('.f-date').addEventListener('input', e => { item.date=e.target.value; scheduleSave(); recompute(); });
+      wrap.querySelectorAll('.mode-toggle-inc-end button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          item.end.type = btn.dataset.end;
+          renderIncomeRows(); scheduleSave(); recompute();
+        });
+      });
+      const endDateInp = wrap.querySelector('.f-inc-end-date');
+      if (endDateInp) endDateInp.addEventListener('input', e => { item.end.date=e.target.value; scheduleSave(); recompute(); });
+      const endCountInp = wrap.querySelector('.f-inc-end-count');
+      if (endCountInp) endCountInp.addEventListener('input', e => { item.end.count=parseInt(e.target.value,10)||0; scheduleSave(); recompute(); });
+      wrap.querySelector('.del').addEventListener('click', () => {
+        data.income = data.income.filter(x => x.id !== id);
+        renderIncomeRows(); scheduleSave(); recompute();
+      });
+    });
+  }
+
+  // ---- Expense cards (fixed / range / average; recurring or one-time) ----
+  function expenseCardTemplate(item){
+    const freqLabels = { once:'One-time', weekly:'Weekly', monthly:'Monthly', quarterly:'Quarterly', annual:'Annual' };
+    const freqs = ['once','weekly','monthly','quarterly','annual'];
+    const freqOpts = freqs.map(f => `<option value="${f}" ${item.freq===f?'selected':''}>${freqLabels[f]}</option>`).join('');
+    const modes = [['fixed','Fixed'],['range','Range'],['average','Logged avg']];
+    const modeBtns = modes.map(([m,label]) => `<button data-mode="${m}" class="${item.mode===m?'active':''}" aria-pressed="${item.mode===m}">${label}</button>`).join('');
+
+    let body = '';
+    if (item.mode === 'range'){
+      body = `<div class="ft-mode-body range">
+        <label>Min <input type="number" class="f-min small" step="0.01" value="${escapeHTML(item.min||'')}"></label>
+        <label>Max <input type="number" class="f-max small" step="0.01" value="${escapeHTML(item.max||'')}"></label>
+      </div>`;
+    } else if (item.mode === 'average'){
+      const b = computeItemBounds(item);
+      const list = (item.history||[]).slice().reverse().map(h =>
+        `<div class="ft-log-item" data-hid="${escapeHTML(h.id)}"><span>${shortDate(parseISO(h.date))}</span><span>${fmt(h.amount)} <button class="hdel">remove</button></span></div>`
+      ).join('') || '<div class="ft-log-item"><span>No charges logged yet</span><span></span></div>';
+      body = `<div class="ft-mode-body average">
+        <div class="ft-avg-display">Using rolling average of last ${Math.min((item.history||[]).length,6)} charge(s): <b>${fmt(b.expected)}</b>${(item.history||[]).length? ` (range logged: ${fmt(b.min)}\u2013${fmt(b.max)})`:''}</div>
+        <div class="ft-log-form">
+          <input type="date" class="hlog-date" value="${todayISO()}">
+          <input type="number" class="hlog-amount" placeholder="Amount" aria-label="Actual charge amount" step="0.01" style="width:120px">
+          <button class="hlog-add">Log charge</button>
+        </div>
+        <div class="ft-log-list">${list}</div>
+      </div>`;
+    } else {
+      body = `<div class="ft-mode-body fixed">
+        <label>Amount <input type="number" class="f-amount small" step="0.01" value="${item.amount||''}"></label>
+      </div>`;
+    }
+
+    let endRow = '';
+    if (item.freq !== 'once'){
+      const endTypes = [['never','Never'],['date','On date'],['count','Fixed count']];
+      const endBtns = endTypes.map(([t,label]) => `<button data-end="${t}" class="${item.end.type===t?'active':''}" aria-pressed="${item.end.type===t}">${label}</button>`).join('');
+      let endBody = '';
+      if (item.end.type === 'date'){
+        endBody = `<div class="ft-mode-body end"><label>Last payment on <input type="date" class="f-end-date small" value="${escapeHTML(item.end.date||'')}"></label></div>`;
+      } else if (item.end.type === 'count'){
+        endBody = `<div class="ft-mode-body end"><label>Total installments <input type="number" min="0" class="f-end-count small" value="${escapeHTML(item.end.count||'')}"></label><span class="ft-band-note" style="margin:0;padding:0">counted from the next date above, not from today</span></div>`;
+      }
+      endRow = `<div class="ft-end-row"><span class="lbl">Ends</span><div class="ft-mode-toggle mode-toggle-end">${endBtns}</div></div>${endBody}`;
+    }
+
+    return `<div class="ft-exp-card" data-id="${escapeHTML(item.id)}">
+      <div class="ft-exp-top">
+        <input type="text" class="f-name" placeholder="e.g. Netflix, or a one-time bill" aria-label="Expense name" value="${escapeHTML(item.name||'')}">
+        <select class="f-freq name-freq" aria-label="Expense frequency">${freqOpts}</select>
+        <input type="date" class="f-date" aria-label="Expense date" value="${escapeHTML(item.date||'')}">
+        <button class="del" title="Remove expense" aria-label="Remove expense">×</button>
+      </div>
+      <div class="ft-mode-toggle mode-toggle-amount">${modeBtns}</div>
+      ${body}
+      ${endRow}
+    </div>`;
+  }
+
+  function renderExpenseCards(){
+    if (!data.expenses.length){
+      document.getElementById('expenseCards').innerHTML = '<div class="ft-empty">No spending added yet. Add a subscription, bill, or a one-time cost you know is coming.</div>';
+      return;
+    }
+    document.getElementById('expenseCards').innerHTML = data.expenses.map(expenseCardTemplate).join('');
+    bindExpenseCardEvents();
+  }
+
+  function bindExpenseCardEvents(){
+    document.querySelectorAll('.ft-exp-card').forEach(card => {
+      const id = card.dataset.id;
+      const item = data.expenses.find(x => x.id === id);
+
+      card.querySelector('.f-name').addEventListener('input', e => { item.name=e.target.value; scheduleSave(); });
+      card.querySelector('.f-freq').addEventListener('change', e => { item.freq=e.target.value; renderExpenseCards(); scheduleSave(); recompute(); });
+      card.querySelector('.f-date').addEventListener('input', e => { item.date=e.target.value; scheduleSave(); recompute(); });
+      card.querySelector('.del').addEventListener('click', () => {
+        data.expenses = data.expenses.filter(x => x.id !== id);
+        renderExpenseCards(); scheduleSave(); recompute();
+      });
+
+      card.querySelectorAll('.mode-toggle-amount button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          item.mode = btn.dataset.mode;
+          if (item.mode === 'range' && item.min==null){ item.min=0; item.max=0; }
+          if (item.mode === 'average' && !item.history){ item.history=[]; }
+          renderExpenseCards(); scheduleSave(); recompute();
+        });
+      });
+
+      card.querySelectorAll('.mode-toggle-end button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          item.end.type = btn.dataset.end;
+          renderExpenseCards(); scheduleSave(); recompute();
+        });
+      });
+      const fEndDate = card.querySelector('.f-end-date');
+      const fEndCount = card.querySelector('.f-end-count');
+      if (fEndDate) fEndDate.addEventListener('input', e => { item.end.date=e.target.value; scheduleSave(); recompute(); });
+      if (fEndCount) fEndCount.addEventListener('input', e => { item.end.count=parseInt(e.target.value,10)||0; scheduleSave(); recompute(); });
+
+      const famount = card.querySelector('.f-amount');
+      if (famount) famount.addEventListener('input', e => { item.amount=parseFloat(e.target.value)||0; scheduleSave(); recompute(); });
+      const fmin = card.querySelector('.f-min');
+      const fmax = card.querySelector('.f-max');
+      if (fmin) fmin.addEventListener('input', e => { item.min=parseFloat(e.target.value)||0; scheduleSave(); recompute(); });
+      if (fmax) fmax.addEventListener('input', e => { item.max=parseFloat(e.target.value)||0; scheduleSave(); recompute(); });
+
+      const hadd = card.querySelector('.hlog-add');
+      if (hadd){
+        hadd.addEventListener('click', () => {
+          const d = card.querySelector('.hlog-date').value || todayISO();
+          const amt = parseFloat(card.querySelector('.hlog-amount').value)||0;
+          if (!amt) return;
+          if (!item.history) item.history=[];
+          item.history.push({id:newId(), date:d, amount:amt});
+          renderExpenseCards(); scheduleSave(); recompute();
+        });
+      }
+      card.querySelectorAll('.hdel').forEach(b => {
+        b.addEventListener('click', (e) => {
+          const hid = e.target.closest('.ft-log-item').dataset.hid;
+          item.history = (item.history||[]).filter(h => h.id !== hid);
+          renderExpenseCards(); scheduleSave(); recompute();
+        });
+      });
+    });
+  }
+
+  function renderWhatifs(){
+    document.getElementById('wiList').innerHTML = data.whatifs.map(w =>
+      `<div class="ft-whatif-item" data-id="${escapeHTML(w.id)}">
+        <span>${escapeHTML(w.label || 'unlabeled')} \u2014 ${shortDate(parseISO(w.date))}</span>
+        <span class="amt">${fmt(-Math.abs(w.amount))} <button data-id="${escapeHTML(w.id)}">remove</button></span>
+      </div>`
+    ).join('');
+    document.querySelectorAll('.ft-whatif-item button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        data.whatifs = data.whatifs.filter(w => w.id !== btn.dataset.id);
+        renderWhatifs(); scheduleSave(); recompute();
+      });
+    });
+  }
+
+  function renderReceiptLog(){
+    const el = document.getElementById('receiptLog');
+    if (!data.receiptLog.length){ el.innerHTML = '<div class="ft-empty">No receipts scanned yet.</div>'; return; }
+    el.innerHTML = '<div class="ft-receipt-log">' + data.receiptLog.slice().reverse().map(r =>
+      `<div class="ft-receipt-log-item" data-id="${escapeHTML(r.id)}">
+        <span class="meta">${shortDate(parseISO(r.date))} — ${escapeHTML(r.merchant)}</span>
+        <span class="amt">${fmt(r.amount)} <button class="rc-undo">undo</button></span>
+      </div>`
+    ).join('') + '</div>';
+    document.querySelectorAll('.rc-undo').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.target.closest('.ft-receipt-log-item').dataset.id;
+        const entry = data.receiptLog.find(r => r.id === id);
+        if (!entry) return;
+        data.savings += entry.amount;
+        data.receiptLog = data.receiptLog.filter(r => r.id !== id);
+        document.getElementById('inpSavings').value = data.savings;
+        renderReceiptLog(); scheduleSave(); recompute();
+      });
+    });
+  }
+
+  document.getElementById('rcCancelBtn').addEventListener('click', () => {
+    document.getElementById('receiptConfirm').style.display = 'none';
+  });
+  document.getElementById('rcConfirmBtn').addEventListener('click', () => {
+    const amount = Math.abs(parseFloat(document.getElementById('rcAmount').value)||0);
+    if (!amount) return;
+    const merchant = document.getElementById('rcMerchant').value.trim() || 'Receipt';
+    const date = document.getElementById('rcDate').value || todayISO();
+    data.savings -= amount;
+    data.receiptLog.push({ id:newId(), date, merchant, amount });
+    document.getElementById('inpSavings').value = data.savings;
+    document.getElementById('receiptConfirm').style.display = 'none';
+    renderReceiptLog(); scheduleSave(); recompute();
+  });
+  let saveTimer = null;
+  function scheduleSave(){
+    setSaveState('Saving...', false);
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(save, 500);
+  }
+  async function save(){
+    try{
+      await storage.set(STORAGE_KEY, JSON.stringify(data), false);
+      setSaveState('Saved', false);
+    }catch(e){
+      setSaveState('Persistence unavailable — latest changes may not survive reload. Export a backup.', true);
+    }
+  }
+  function migrate(item){
+    if (!item.mode) item.mode = 'fixed';
+    if (item.mode === 'range' && item.min==null){ item.min=0; item.max=0; }
+    if (item.mode === 'average' && !item.history){ item.history=[]; }
+    if (!item.end) item.end = { type:'never', date:'', count:'' };
+    return item;
+  }
+  function migrateIncome(item){
+    if (!item.end) item.end = { type: item.endDate ? 'date' : 'never', date: item.endDate||'', count:'' };
+    return item;
+  }
+  function cloneData(value){
+    return JSON.parse(JSON.stringify(value));
+  }
+  function isValidDateValue(value){
+    if (value == null || value === '') return true;
+    if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+    const [year, month, day] = value.split('-').map(Number);
+    const parsed = new Date(year, month - 1, day);
+    return parsed.getFullYear() === year && parsed.getMonth() === month - 1 && parsed.getDate() === day;
+  }
+  function isValidNumberValue(value){
+    return value == null || value === '' || (typeof value === 'number' && Number.isFinite(value)) ||
+      (typeof value === 'string' && Number.isFinite(Number(value)));
+  }
+  function validateEndValue(end){
+    if (end == null) return;
+    if (typeof end !== 'object' || Array.isArray(end)) throw new Error('Backup contains an invalid end configuration');
+    if (end.type != null && !['never','date','count'].includes(end.type)) throw new Error('Backup contains an invalid end type');
+    if (!isValidDateValue(end.date) || !isValidNumberValue(end.count)) throw new Error('Backup contains an invalid end value');
+  }
+  function validateTextValue(value){
+    return value == null || typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean';
+  }
+  function validateRecord(item, label, fields){
+    if (!item || typeof item !== 'object' || Array.isArray(item)) throw new Error(`Backup contains an invalid ${label}`);
+    if (item.id != null && !validateTextValue(item.id)) throw new Error(`Backup contains an invalid ${label} id`);
+    fields.forEach(([key, type]) => {
+      if (item[key] == null) return;
+      if (type === 'text' && !validateTextValue(item[key])) throw new Error(`Backup contains an invalid ${label} ${key}`);
+      if (type === 'date' && !isValidDateValue(item[key])) throw new Error(`Backup contains an invalid ${label} date`);
+      if (type === 'number' && !isValidNumberValue(item[key])) throw new Error(`Backup contains an invalid ${label} amount`);
+    });
+  }
+  function validateSupportedValue(item, key, values, label){
+    if (item[key] != null && !values.includes(item[key])) throw new Error(`Backup contains an invalid ${label} ${key}`);
+  }
+  function normalizeData(candidate){
+    if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) throw new Error('Backup data must be an object');
+    const normalized = Object.assign(defaultData(), cloneData(candidate));
+    if (!Array.isArray(normalized.income) || !Array.isArray(normalized.expenses) || !Array.isArray(normalized.whatifs) || !Array.isArray(normalized.receiptLog)){
+      throw new Error('Backup data has an invalid collection');
+    }
+    normalized.expenses = normalized.expenses.map(item => {
+      validateRecord(item, 'spending item', [['name','text'],['date','date'],['amount','number'],['min','number'],['max','number']]);
+      validateSupportedValue(item, 'freq', ['once','weekly','biweekly','monthly','quarterly','annual'], 'spending item');
+      validateSupportedValue(item, 'mode', ['fixed','range','average'], 'spending item');
+      if (item.history != null && !Array.isArray(item.history)) throw new Error('Backup contains invalid spending history');
+      validateEndValue(item.end);
+      (item.history||[]).forEach(history => validateRecord(history, 'history item', [['date','date'],['amount','number']]));
+      return migrate(item);
+    });
+    normalized.income = normalized.income.map(item => {
+      validateRecord(item, 'income item', [['name','text'],['date','date'],['amount','number']]);
+      validateSupportedValue(item, 'freq', ['once','weekly','biweekly','monthly','quarterly','annual'], 'income item');
+      validateEndValue(item.end);
+      if (item.endDate != null && !isValidDateValue(item.endDate)) throw new Error('Backup contains an invalid income end date');
+      return migrateIncome(item);
+    });
+    normalized.whatifs.forEach(item => {
+      validateRecord(item, 'What-If item', [['label','text'],['date','date'],['amount','number']]);
+    });
+    normalized.receiptLog.forEach(item => {
+      validateRecord(item, 'receipt item', [['merchant','text'],['date','date'],['amount','number']]);
+    });
+    if ((normalized.savingsGoalName != null && typeof normalized.savingsGoalName !== 'string') || !isValidNumberValue(normalized.savings) ||
+      !isValidNumberValue(normalized.savingsGoal) || !isValidNumberValue(normalized.horizonMonths) ||
+      !isValidNumberValue(normalized.installmentMonths) || typeof normalized.horizonIsCustom !== 'boolean' ||
+      !validateTextValue(normalized.theme)) throw new Error('Backup contains invalid settings');
+    return normalized;
+  }
+  function validateBackupEnvelope(value){
+    if (!value || typeof value !== 'object' || Array.isArray(value) || value.format !== BACKUP_FORMAT){
+      throw new Error('Not a Fundament backup file');
+    }
+    if (value.schemaVersion !== BACKUP_SCHEMA_VERSION) throw new Error('Unsupported backup schema version');
+    return normalizeData(value.data);
+  }
+  function prepareData(dataValue){
+    [...dataValue.income, ...dataValue.expenses].forEach(x => bumpIdCounter(x.id));
+    dataValue.expenses.forEach(e => (e.history||[]).forEach(h => bumpIdCounter(h.id)));
+    dataValue.whatifs.forEach(w => bumpIdCounter(w.id));
+  }
+  function renderData(){
+    document.getElementById('inpSavings').value = data.savings || '';
+    document.getElementById('inpGoal').value = data.savingsGoal || '';
+    document.getElementById('inpGoalName').value = data.savingsGoalName || '';
+    document.getElementById('instMonths').value = data.installmentMonths || 6;
+    applyHorizonUI();
+    applyTheme(data.theme || 'dark');
+    renderIncomeRows();
+    renderExpenseCards();
+    renderWhatifs();
+    renderReceiptLog();
+    recompute();
+  }
+  function exportBackup(){
+    const backup = { format:BACKUP_FORMAT, schemaVersion:BACKUP_SCHEMA_VERSION, exportedAt:new Date().toISOString(), data:cloneData(data) };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type:'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'fundament-backup.json';
+    link.click();
+    URL.revokeObjectURL(url);
+    document.getElementById('saveState').textContent = 'Backup exported';
+  }
+  async function importBackup(file){
+    try{
+      const parsed = JSON.parse(await file.text());
+      const imported = validateBackupEnvelope(parsed);
+      if (!confirm('Replace current data with this backup?')) return;
+      clearTimeout(saveTimer);
+      const previous = await storage.get(STORAGE_KEY, false);
+      try{
+        await storage.set(STORAGE_KEY, JSON.stringify(imported), false);
+      }catch(e){
+        let restored = true;
+        try{
+          if (previous && previous.value != null) await storage.set(STORAGE_KEY, previous.value, false);
+          else if (storage.delete) await storage.delete(STORAGE_KEY, false);
+        }catch(restoreError){ restored = false; }
+        setSaveState(restored
+          ? 'Persistence unavailable — imported data kept in this session only. Export a backup.'
+          : 'Persistence recovery failed — current data kept in this session only. Export a backup.', true);
+        return;
+      }
+      data = imported;
+      prepareData(data);
+      setSaveState('Saved', false);
+      renderData();
+    }catch(e){
+      setSaveState('Import failed — current data kept', true);
+    }finally{
+      document.getElementById('backupFileInput').value = '';
+    }
+  }
+  async function load(){
+    const recover = async (storageKey, rawValue) => {
+      const recoveryKey = storageKey + RECOVERY_STORAGE_SUFFIX;
+      let preserved = false;
+      try{
+        const existing = await storage.get(recoveryKey, false);
+        if (!existing || existing.value == null){
+          await storage.set(recoveryKey, rawValue, false);
+          preserved = true;
+        } else {
+          preserved = true;
+        }
+      }catch(e){
+        preserved = false;
+      }
+      setSaveState(preserved
+        ? 'Saved data was invalid — using safe defaults; original preserved for recovery'
+        : 'Persistence unavailable — saved data was invalid and recovery copy failed', true);
+    };
+    try{
+      let sourceKey = null;
+      let rawValue = null;
+      for (const key of [STORAGE_KEY, ...LEGACY_STORAGE_KEYS]){
+        let res;
+        try{
+          res = await storage.get(key, false);
+        }catch(e){
+          setSaveState('Persistence unavailable — changes may not survive reload. Export a backup.', true);
+          renderData();
+          return;
+        }
+        if (res && res.value != null){
+          sourceKey = key;
+          rawValue = res.value;
+          break;
+        }
+      }
+      if (sourceKey){
+        try{
+          const parsed = JSON.parse(rawValue);
+          const normalized = normalizeData(parsed);
+          prepareData(normalized);
+          data = normalized;
+          if (sourceKey !== STORAGE_KEY){
+            try{
+              await storage.set(STORAGE_KEY, JSON.stringify(normalized), false);
+            }catch(e){
+              setSaveState('Loaded existing data, but persistence is unavailable — changes may not survive reload. Export a backup.', true);
+              renderData();
+              return;
+            }
+          }
+          setSaveState('Saved', false);
+        }catch(e){
+          await recover(sourceKey, rawValue);
+        }
+      } else {
+        prepareData(data);
+        setSaveState('Saved', false);
+      }
+    }catch(e){
+      setSaveState('Persistence unavailable — changes may not survive reload. Export a backup.', true);
+    }
+    renderData();
+  }
+
+  function applyTheme(theme){
+    const root = document.getElementById('ftRoot');
+    root.classList.remove('theme-dark','theme-light');
+    root.classList.add(theme === 'light' ? 'theme-light' : 'theme-dark');
+    document.querySelectorAll('#themeToggle button').forEach(b => {
+      const isActive = b.dataset.theme===theme;
+      b.classList.toggle('active', isActive);
+      b.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+  }
+  document.getElementById('themeToggle').addEventListener('click', e => {
+    if (e.target.tagName !== 'BUTTON') return;
+    data.theme = e.target.dataset.theme;
+    applyTheme(data.theme);
+    scheduleSave();
+    recompute();
+  });
+  document.getElementById('exportBackupBtn').addEventListener('click', exportBackup);
+  document.getElementById('importBackupBtn').addEventListener('click', () => document.getElementById('backupFileInput').click());
+  document.getElementById('backupFileInput').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (file) importBackup(file);
+  });
+
+  document.getElementById('inpSavings').addEventListener('input', e => { data.savings=parseFloat(e.target.value)||0; scheduleSave(); recompute(); });
+  document.getElementById('inpGoal').addEventListener('input', e => { data.savingsGoal=parseFloat(e.target.value)||0; scheduleSave(); recompute(); });
+  document.getElementById('inpGoalName').addEventListener('input', e => { data.savingsGoalName=e.target.value; scheduleSave(); recompute(); });
+  document.getElementById('instMonths').addEventListener('input', e => { data.installmentMonths=parseInt(e.target.value,10)||6; scheduleSave(); renderCompare(); });
+  document.getElementById('addIncomeBtn').addEventListener('click', () => {
+    data.income.push({id:newId(), name:'', amount:0, freq:'monthly', date:todayISO(), end:{type:'never', date:'', count:''}});
+    renderIncomeRows(); scheduleSave(); recompute();
+  });
+  document.getElementById('addExpenseBtn').addEventListener('click', () => {
+    data.expenses.push({id:newId(), name:'', amount:0, freq:'monthly', date:todayISO(), mode:'fixed', min:0, max:0, history:[], end:{type:'never', date:'', count:''}});
+    renderExpenseCards(); scheduleSave();
+  });
+  function applyHorizonUI(){
+    const customInput = document.getElementById('customHorizonInput');
+    document.querySelectorAll('#horizonButtons button').forEach(b => {
+      const isCustomBtn = b.dataset.m === 'custom';
+      const isActive = data.horizonIsCustom ? isCustomBtn : (parseInt(b.dataset.m,10)===data.horizonMonths);
+      b.classList.toggle('active', isActive);
+      b.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+    customInput.style.display = data.horizonIsCustom ? 'inline-block' : 'none';
+    if (data.horizonIsCustom) customInput.value = data.horizonMonths;
+  }
+  document.getElementById('horizonButtons').addEventListener('click', e => {
+    if (e.target.tagName !== 'BUTTON') return;
+    if (e.target.dataset.m === 'custom'){
+      data.horizonIsCustom = true;
+      if (!data.horizonMonths || [6,12,24].includes(data.horizonMonths)) data.horizonMonths = 18;
+    } else {
+      data.horizonIsCustom = false;
+      data.horizonMonths = parseInt(e.target.dataset.m,10);
+    }
+    applyHorizonUI();
+    scheduleSave(); recompute();
+  });
+  document.getElementById('customHorizonInput').addEventListener('input', e => {
+    data.horizonMonths = Math.max(1, parseInt(e.target.value,10)||1);
+    scheduleSave(); recompute();
+  });
+  document.getElementById('wiAddBtn').addEventListener('click', () => {
+    const label = document.getElementById('wiLabel').value.trim();
+    const amount = parseFloat(document.getElementById('wiAmount').value)||0;
+    const date = document.getElementById('wiDate').value || todayISO();
+    if (!amount) return;
+    data.whatifs.push({id:newId(), label, amount, date});
+    document.getElementById('wiLabel').value=''; document.getElementById('wiAmount').value=''; document.getElementById('wiDate').value='';
+    renderWhatifs(); scheduleSave(); recompute();
+  });
+  document.getElementById('resetBtn').addEventListener('click', async () => {
+    if (!confirm('Clear all saved data? This cannot be undone.')) return;
+    data = defaultData();
+    document.getElementById('inpSavings').value='';
+    document.getElementById('inpGoal').value='';
+    document.getElementById('inpGoalName').value='';
+    document.getElementById('instMonths').value=6;
+    applyHorizonUI();
+    applyTheme(data.theme);
+    renderReceiptLog();
+    renderIncomeRows(); renderExpenseCards(); renderWhatifs(); recompute();
+    let failed = false;
+    for (const key of [...FUNDAMENT_STORAGE_KEYS, ...FUNDAMENT_STORAGE_KEYS.map(key => key + RECOVERY_STORAGE_SUFFIX)]){
+      try{ await storage.delete(key, false); }catch(e){ failed = true; }
+    }
+    setSaveState(failed
+      ? 'Reset in memory, but some saved data could not be removed. Export a backup if needed.'
+      : 'Saved data cleared', failed);
+  });
+
+  load();
+})();
+</script>
