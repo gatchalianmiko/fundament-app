@@ -209,7 +209,7 @@
 
   <div class="ft-balance" id="ftBalanceBox">
     <span class="num" id="ftCurrentSavings">₱0</span>
-    <span class="lbl">on hand today</span>
+    <span class="lbl">On hand today · read-only</span>
   </div>
 
   <div class="ft-dash-grid" id="dashboardCards"></div>
@@ -234,7 +234,8 @@
   <section>
     <div class="ft-section-head"><h2>Record a receipt</h2><span class="hint">manual entry only; deducts from current savings</span></div>
     <div class="ft-receipt">
-      <div id="receiptConfirm" style="display:block;margin-top:10px;">
+      <button class="ft-add" id="rcOpenBtn">Record a receipt</button>
+      <div id="receiptConfirm" style="display:none;margin-top:10px;">
         <div class="ft-band-note" style="margin-bottom:8px;">Automatic receipt scanning is unavailable in this public release. Enter the receipt details below.</div>
         <div class="ft-cmp-form">
           <input type="text" id="rcMerchant" placeholder="Merchant" aria-label="Merchant name">
@@ -1213,9 +1214,18 @@
     });
   }
 
-  document.getElementById('rcCancelBtn').addEventListener('click', () => {
+  function closeReceiptForm(){
+    document.getElementById('rcMerchant').value = '';
+    document.getElementById('rcAmount').value = '';
+    document.getElementById('rcDate').value = '';
     document.getElementById('receiptConfirm').style.display = 'none';
+    document.getElementById('rcOpenBtn').style.display = 'block';
+  }
+  document.getElementById('rcOpenBtn').addEventListener('click', () => {
+    document.getElementById('receiptConfirm').style.display = 'block';
+    document.getElementById('rcOpenBtn').style.display = 'none';
   });
+  document.getElementById('rcCancelBtn').addEventListener('click', closeReceiptForm);
   document.getElementById('rcConfirmBtn').addEventListener('click', () => {
     const amount = Math.abs(parseFloat(document.getElementById('rcAmount').value)||0);
     if (!amount) return;
@@ -1224,7 +1234,7 @@
     data.savings -= amount;
     data.receiptLog.push({ id:newId(), date, merchant, amount });
     document.getElementById('inpSavings').value = data.savings;
-    document.getElementById('receiptConfirm').style.display = 'none';
+    closeReceiptForm();
     renderReceiptLog(); scheduleSave(); recompute();
   });
   let saveTimer = null;
