@@ -103,6 +103,12 @@
   .ft-receipt-log-item .meta{color:var(--text-dim);}
   .ft-receipt-log-item .amt{font-family:'IBM Plex Mono',monospace;color:var(--neg);}
   .ft-receipt-log-item button{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:12px;text-decoration:underline;}
+  .ft-overdue{margin-bottom:12px;padding:10px 12px;background:var(--surface-2);border:1px solid var(--line);border-radius:3px;}
+  .ft-overdue .title{font-size:13px;color:var(--text);margin-bottom:6px;}
+  .ft-overdue-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:12px;}
+  .ft-overdue-item .actions{display:flex;gap:6px;flex-shrink:0;}
+  .ft-overdue-item button{background:var(--surface);border:1px solid var(--line);color:var(--text-dim);padding:5px 8px;border-radius:3px;font-size:11px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;}
+  .ft-overdue-item button:first-child{background:var(--accent);border-color:var(--accent);color:var(--accent-contrast);}
 
   .ft-cmp-form{display:grid;grid-template-columns:1fr 120px 140px auto;gap:8px;margin-bottom:14px;}
   .ft-cmp-form input{background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:8px;border-radius:3px;width:100%;}
@@ -244,19 +250,21 @@
   </section>
 
   <section>
-    <div class="ft-section-head"><h2>Receipts</h2><span class="hint">deducts from current savings</span></div>
+    <div class="ft-section-head"><h2>Receipts</h2><span class="hint">for expenses already paid; reduces current savings</span></div>
     <div class="ft-receipt">
       <button class="ft-add" id="rcOpenBtn">Record a receipt</button>
+      <div id="receiptStatus" class="ft-band-note" style="display:none"></div>
       <div id="receiptConfirm" style="display:none;margin-top:10px;">
-        <div class="ft-band-note" style="margin-bottom:8px;">Automatic receipt scanning is unavailable in this public release. Enter the receipt details below.</div>
+        <div class="ft-band-note" style="margin-bottom:8px;">Enter the details for an expense already paid.</div>
         <div class="ft-cmp-form">
           <input type="text" id="rcMerchant" placeholder="Merchant" aria-label="Merchant name">
           <input type="number" id="rcAmount" placeholder="Amount" step="0.01" aria-label="Receipt amount">
-          <input type="date" id="rcDate" aria-label="Receipt date">
+          <label>Date paid<input type="date" id="rcDate" aria-label="Date paid"></label>
           <button id="rcConfirmBtn">Deduct</button>
         </div>
         <button class="ft-reset" id="rcCancelBtn" style="margin-top:6px;">Cancel</button>
       </div>
+      <div id="overdueSpending"></div>
       <div id="receiptLog"></div>
     </div>
   </section>
@@ -989,6 +997,7 @@
     else { bandNote.style.display='none'; }
 
     document.getElementById('legendWhatif').style.display = scenario ? 'inline-flex' : 'none';
+    renderOverdueSpending();
 
 
     const bal = data.savings || 0;
@@ -1204,9 +1213,82 @@
     });
   }
 
+  const dismissedOverdue = new Set();
+  function dateISO(date){
+    return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+  }
+  function overdueOccurrence(item){
+    const today = parseISO(todayISO());
+    let current = parseISO(item.date);
+    if (isNaN(current.getTime()) || current > today) return null;
+    if (item.freq === 'once') return { date:current, amount:computeItemBounds(item).expected };
+    const endDate = item.end && item.end.type === 'date' && item.end.date ? parseISO(item.end.date) : null;
+    let remaining = item.end && item.end.type === 'count' ? Math.max(0, parseInt(item.end.count,10)||0) : Infinity;
+    let last = null;
+    let guard = 0;
+    while (current <= today && guard < 2000 && remaining > 0){
+      if (endDate && current > endDate) break;
+      last = new Date(current.getTime());
+      remaining--;
+      current = addInterval(current, item.freq);
+      guard++;
+    }
+    return last ? { date:last, amount:computeItemBounds(item).expected } : null;
+  }
+  function overdueKey(item, occurrence){ return `${item.id}:${dateISO(occurrence.date)}`; }
+  function renderOverdueSpending(){
+    const el = document.getElementById('overdueSpending');
+    if (!el) return;
+    const overdue = data.expenses.map(item => {
+      const occurrence = overdueOccurrence(item);
+      return occurrence && occurrence.amount > 0 ? { item, occurrence } : null;
+    }).filter(Boolean).filter(({item, occurrence}) => !dismissedOverdue.has(overdueKey(item, occurrence)));
+    if (!overdue.length){ el.innerHTML = ''; return; }
+    el.innerHTML = `<div class="ft-overdue"><div class="title">Payments may be overdue</div>${overdue.map(({item, occurrence}) =>
+      `<div class="ft-overdue-item" data-id="${escapeHTML(item.id)}" data-date="${dateISO(occurrence.date)}">
+        <span>${escapeHTML(item.name || 'Spending')} — ${fmt(occurrence.amount)} due ${escapeHTML(shortDate(occurrence.date))}</span>
+        <span class="actions"><button class="overdue-confirm">Yes, add to Receipts</button><button class="overdue-dismiss">Not yet</button></span>
+      </div>`).join('')}</div>`;
+    el.querySelectorAll('.overdue-dismiss').forEach(button => button.addEventListener('click', e => {
+      const row = e.target.closest('.ft-overdue-item');
+      dismissedOverdue.add(`${row.dataset.id}:${row.dataset.date}`);
+      renderOverdueSpending();
+    }));
+    el.querySelectorAll('.overdue-confirm').forEach(button => button.addEventListener('click', e => {
+      const row = e.target.closest('.ft-overdue-item');
+      confirmOverdueSpending(row.dataset.id, row.dataset.date);
+    }));
+  }
+  function confirmOverdueSpending(id, scheduledDate){
+    const item = data.expenses.find(expense => expense.id === id);
+    if (!item) return;
+    const occurrence = overdueOccurrence(item);
+    if (!occurrence || dateISO(occurrence.date) !== scheduledDate) return;
+    const amount = Math.abs(parseFloat(occurrence.amount)||0);
+    if (!amount || data.receiptLog.some(receipt => receipt.sourceExpenseId === id && receipt.sourceScheduledDate === scheduledDate)) return;
+    data.savings -= amount;
+    data.receiptLog.push({ id:newId(), merchant:item.name || 'Receipt', amount, date:scheduledDate, sourceExpenseId:id, sourceScheduledDate:scheduledDate });
+    if (item.freq === 'once'){
+      data.expenses = data.expenses.filter(expense => expense.id !== id);
+    } else if (item.end && item.end.type === 'count'){
+      const remaining = Math.max(0, parseInt(item.end.count,10)||0) - 1;
+      if (remaining <= 0) data.expenses = data.expenses.filter(expense => expense.id !== id);
+      else { item.end.count = remaining; item.date = dateISO(addInterval(occurrence.date, item.freq)); }
+    } else {
+      const nextDate = addInterval(occurrence.date, item.freq);
+      if (item.end && item.end.type === 'date' && item.end.date && nextDate > parseISO(item.end.date)){
+        data.expenses = data.expenses.filter(expense => expense.id !== id);
+      } else {
+        item.date = dateISO(nextDate);
+      }
+    }
+    dismissedOverdue.delete(`${id}:${scheduledDate}`);
+    document.getElementById('inpSavings').value = data.savings;
+    renderExpenseCards(); renderReceiptLog(); scheduleSave(); recompute();
+  }
   function renderReceiptLog(){
     const el = document.getElementById('receiptLog');
-    if (!data.receiptLog.length){ el.innerHTML = '<div class="ft-empty">No receipts scanned yet.</div>'; return; }
+    if (!data.receiptLog.length){ el.innerHTML = '<div class="ft-empty">No receipts recorded yet.</div>'; return; }
     el.innerHTML = '<div class="ft-receipt-log">' + data.receiptLog.slice().reverse().map(r =>
       `<div class="ft-receipt-log-item" data-id="${escapeHTML(r.id)}">
         <span class="meta">${shortDate(parseISO(r.date))} — ${escapeHTML(r.merchant)}</span>
@@ -1231,6 +1313,7 @@
     document.getElementById('rcAmount').value = '';
     document.getElementById('rcDate').value = '';
     document.getElementById('receiptConfirm').style.display = 'none';
+    document.getElementById('receiptStatus').style.display = 'none';
     document.getElementById('rcOpenBtn').style.display = 'block';
   }
   document.getElementById('rcOpenBtn').addEventListener('click', () => {
@@ -1238,11 +1321,18 @@
     document.getElementById('rcOpenBtn').style.display = 'none';
   });
   document.getElementById('rcCancelBtn').addEventListener('click', closeReceiptForm);
+  document.getElementById('rcDate').max = todayISO();
   document.getElementById('rcConfirmBtn').addEventListener('click', () => {
     const amount = Math.abs(parseFloat(document.getElementById('rcAmount').value)||0);
     if (!amount) return;
     const merchant = document.getElementById('rcMerchant').value.trim() || 'Receipt';
     const date = document.getElementById('rcDate').value || todayISO();
+    if (!isValidDateValue(date) || date > todayISO()){
+      const statusEl = document.getElementById('receiptStatus');
+      statusEl.textContent = 'Date paid cannot be in the future.';
+      statusEl.style.display = 'block';
+      return;
+    }
     data.savings -= amount;
     data.receiptLog.push({ id:newId(), date, merchant, amount });
     document.getElementById('inpSavings').value = data.savings;
@@ -1337,6 +1427,7 @@
     });
     normalized.receiptLog.forEach(item => {
       validateRecord(item, 'receipt item', [['merchant','text'],['date','date'],['amount','number']]);
+      if (item.date && item.date > todayISO()) throw new Error('Backup contains a future receipt date');
     });
     if ((normalized.savingsGoalName != null && typeof normalized.savingsGoalName !== 'string') || !isValidNumberValue(normalized.savings) ||
       !isValidNumberValue(normalized.savingsGoal) || !isValidNumberValue(normalized.horizonMonths) ||
