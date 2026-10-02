@@ -32,6 +32,7 @@
   .ft-dash-grid .card:nth-child(4){grid-column:1 / span 2;}
   .ft-dash-grid .card:nth-child(5){grid-column:3 / span 2;}
   .ft-dash-grid .card:nth-child(6){grid-column:5 / span 2;}
+  .ft-dash-grid .card.available{grid-column:2 / span 4;}
   .ft-dash-grid .card{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:12px;}
   .ft-dash-grid .card .k{font-size:11px;color:var(--text-faint);margin-bottom:4px;}
   .ft-dash-grid .card .v{font-family:'IBM Plex Mono',monospace;font-size:16px;color:var(--gold);}
@@ -233,6 +234,7 @@
   @media (max-width:480px){
     .ft-dash-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
     .ft-dash-grid .card:nth-child(n){grid-column:auto;}
+    .ft-dash-grid .card.available{grid-column:1 / -1;}
     .ft-header{flex-direction:column;}
     .ft-inc-item .ft-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 36px;grid-template-areas:"name name del" "amt freq ." "date date date";}
     .ft-inc-item .f-name{grid-area:name;}
@@ -1092,7 +1094,25 @@
       return sum + b.expected * (MONTHLY_RATE[exp.freq]||1);
     }, 0);
   }
-
+  function computeUnpaidCommittedSpending(){
+    const today = new Date(); today.setHours(0,0,0,0);
+    const windowEnd = new Date(today.getFullYear(), today.getMonth()+2, 0);
+    const unpaid = new Map();
+    data.expenses.forEach(item => {
+      const amount = Math.abs(computeItemBounds(item).expected);
+      generateOccurrenceDates(item.date, item.freq, windowEnd, item.end).forEach(date => {
+        const scheduledDate = dateISO(date);
+        if (hasConfirmedOccurrenceReceipt(item.id, scheduledDate)) return;
+        unpaid.set(`${item.id}:${scheduledDate}`, amount);
+      });
+      const overdue = overdueOccurrence(item);
+      if (!overdue || overdue.amount <= 0) return;
+      const scheduledDate = dateISO(overdue.date);
+      if (hasConfirmedOccurrenceReceipt(item.id, scheduledDate)) return;
+      unpaid.set(`${item.id}:${scheduledDate}`, Math.abs(overdue.amount));
+    });
+    return [...unpaid.values()].reduce((sum,amount) => sum + amount, 0);
+  }
   function renderCashFlowOverview(projection){
     const year = projection.today.getFullYear(), month = projection.today.getMonth();
     const monthEvents = projection.points
@@ -1126,6 +1146,8 @@
     const nextMonthBalance = balanceAtDate(nextMonthProjection, nextMonthEnd);
     const goal = parseFloat(data.savingsGoal)||0;
     const months = monthsBetween(expected.today, expected.horizonEnd);
+    const unpaidCommitments = computeUnpaidCommittedSpending();
+    const availableAfterCommitments = (data.savings||0) - unpaidCommitments;
 
     const cards = [
       { k:'Income each month', v: fmt(income), sub:'Scheduled recurring income, monthly equivalent' },
@@ -1145,6 +1167,7 @@
       cards.push({ k:'Goal', v:'Not set', sub:'Goal status' });
     }
     cards.push({ k:'By end of next month', v:fmt(nextMonthBalance), sub:'Next-month projected balance', cls:nextMonthBalance<0?'warn':'' });
+    cards.push({ k:'Available after commitments', v:fmt(availableAfterCommitments), sub:'After unpaid commitments through next month', cls:availableAfterCommitments<0?'available warn':'available good' });
     document.getElementById('dashboardCards').innerHTML = cards.map(c =>
       `<div class="card ${escapeHTML(c.cls||'')}"><div class="k">${escapeHTML(c.k)}</div><div class="v">${escapeHTML(c.v)}</div>${c.sub?`<div class="sub">${escapeHTML(c.sub)}</div>`:''}</div>`
     ).join('');
