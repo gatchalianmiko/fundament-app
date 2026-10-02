@@ -88,16 +88,21 @@
   .ft-scen-apply{margin-top:14px;width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text-dim);padding:9px;border-radius:3px;font-size:12px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;}
   .ft-scen-apply:hover{border-color:var(--gold);color:var(--gold);}
 
-  .ft-row{display:grid;grid-template-columns:1fr 100px 130px 130px 32px;gap:8px;align-items:center;padding:7px 0;}
-  .ft-inc-item{border-bottom:1px solid var(--line);}
+  .ft-row{display:grid;grid-template-columns:1fr 100px 130px 130px 36px;gap:8px;align-items:center;padding:7px 0;}
+  .ft-inc-item{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:10px 12px;margin-bottom:8px;}
   .ft-inc-item .ft-row{border-bottom:none;}
   .ft-inc-end-hint{font-style:italic;color:var(--text-faint);font-size:12px;margin-top:10px;}
   .ft-row.head{color:var(--text-faint);font-size:11px;padding-bottom:6px;border-bottom:1px solid var(--line);}
   .ft-row input, .ft-row select{background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:7px 8px;border-radius:3px;width:100%;}
+  .ft-inc-item .ft-row input,.ft-inc-item .ft-row select{height:36px;min-width:0;}
   .ft-row input::placeholder{color:var(--text-faint);font-family:'IBM Plex Sans',sans-serif;}
   .ft-row select{font-family:'IBM Plex Sans',sans-serif;}
-  .ft-row button.del{background:transparent;border:1px solid var(--line);color:var(--text-faint);width:30px;height:30px;border-radius:3px;cursor:pointer;font-size:14px;line-height:1;}
+  .ft-row button.del{background:transparent;border:1px solid var(--line);color:var(--text-faint);width:36px;height:36px;border-radius:3px;cursor:pointer;font-size:14px;line-height:1;}
   .ft-row button.del:hover{border-color:var(--neg);color:var(--neg);}
+  .ft-inc-item .ft-end-row{margin-top:12px;padding-top:12px;gap:10px;}
+  .ft-inc-item .ft-mode-body.end{margin-top:12px;}
+  .ft-inc-item .ft-mode-body.end label{display:flex;align-items:center;gap:10px;}
+  .ft-inc-item .ft-mode-body.end input.small{height:36px;}
 
   .ft-add{margin-top:8px;background:transparent;border:1px dashed var(--line);color:var(--text-dim);padding:9px 12px;border-radius:3px;font-size:13px;cursor:pointer;width:100%;text-align:left;font-family:'IBM Plex Sans',sans-serif;}
   .ft-add:hover{border-color:var(--gold);color:var(--gold);}
@@ -222,12 +227,12 @@
     .ft-dash-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
     .ft-dash-grid .card:nth-child(n){grid-column:auto;}
     .ft-header{flex-direction:column;}
-    .ft-row{grid-template-columns:1fr 80px 44px;grid-template-areas:"name amt del" "freq date del";}
-    .ft-row input:nth-child(1){grid-area:name;}
-    .ft-row select{grid-area:freq;}
-    .ft-row input:nth-child(3){grid-area:amt;}
-    .ft-row input:nth-child(4){grid-area:date;}
-    .ft-row button.del{grid-area:del;}
+    .ft-inc-item .ft-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 36px;grid-template-areas:"name name del" "amt freq ." "date date date";}
+    .ft-inc-item .f-name{grid-area:name;}
+    .ft-inc-item .f-freq{grid-area:freq;}
+    .ft-inc-item .f-amount{grid-area:amt;}
+    .ft-inc-item .f-date{grid-area:date;}
+    .ft-inc-item button.del{grid-area:del;align-self:start;height:36px;}
     .ft-row.head{display:none;}
     .ft-exp-top{grid-template-columns:1fr 1fr;grid-template-areas:"name name" "freq date" "del del";}
     .ft-exp-top input:nth-child(1){grid-area:name;}
@@ -316,7 +321,7 @@
   </section>
 
   <section>
-    <div class="ft-section-head"><h2>Income</h2><span class="hint">recurring inflows</span></div>
+    <div class="ft-section-head"><h2>Income</h2><span class="hint">recurring or one-time</span></div>
     <div class="ft-row head"><span>Source</span><span>Amount</span><span>Frequency</span><span>Next date</span><span></span></div>
     <div id="incomeRows"></div>
     <button class="ft-add" id="addIncomeBtn">+ add income source</button>
@@ -1178,8 +1183,8 @@
 
   // ---- Income rows (fixed only) ----
   function incomeRowTemplate(item){
-    const freqLabels = { weekly:'Weekly', biweekly:'Biweekly', monthly:'Monthly', quarterly:'Quarterly', annual:'Annual' };
-    const freqs = ['weekly','biweekly','monthly','quarterly','annual'];
+    const freqLabels = { once:'One-time', weekly:'Weekly', biweekly:'Biweekly', monthly:'Monthly', quarterly:'Quarterly', annual:'Annual' };
+    const freqs = ['once','weekly','biweekly','monthly','quarterly','annual'];
     const opts = freqs.map(f => `<option value="${f}" ${item.freq===f?'selected':''}>${freqLabels[f]}</option>`).join('');
     const endTypes = [['never','Never'],['date','On date'],['count','Fixed count']];
     const endBtns = endTypes.map(([t,label]) => `<button data-end="${t}" class="${item.end.type===t?'active':''}" aria-pressed="${item.end.type===t}">${label}</button>`).join('');
@@ -1194,11 +1199,10 @@
         <input type="text" class="f-name" placeholder="e.g. salary" aria-label="Income source name" value="${escapeHTML(item.name||'')}">
         <input type="number" class="f-amount" placeholder="0" step="0.01" aria-label="Income amount" value="${escapeHTML(item.amount||'')}">
         <select class="f-freq" aria-label="Income frequency">${opts}</select>
-        <input type="date" class="f-date" aria-label="Next payment date" value="${escapeHTML(item.date||'')}">
+        <input type="date" class="f-date" aria-label="Payment date" value="${escapeHTML(item.date||'')}">
         <button class="del" title="Remove income source" aria-label="Remove income source">×</button>
       </div>
-      <div class="ft-end-row"><span class="lbl">Ends</span><div class="ft-mode-toggle mode-toggle-inc-end">${endBtns}</div></div>
-      ${endBody}
+      ${item.freq === 'once' ? '' : `<div class="ft-end-row"><span class="lbl">Ends</span><div class="ft-mode-toggle mode-toggle-inc-end">${endBtns}</div></div>${endBody}`}
     </div>`;
   }
   function renderIncomeRows(){
@@ -1216,7 +1220,7 @@
       const item = data.income.find(x => x.id === id);
       wrap.querySelector('.f-name').addEventListener('input', e => { item.name=e.target.value; scheduleSave(); });
       wrap.querySelector('.f-amount').addEventListener('input', e => { item.amount=parseFloat(e.target.value)||0; scheduleSave(); recompute(); });
-      wrap.querySelector('.f-freq').addEventListener('change', e => { item.freq=e.target.value; scheduleSave(); recompute(); });
+      wrap.querySelector('.f-freq').addEventListener('change', e => { item.freq=e.target.value; renderIncomeRows(); scheduleSave(); recompute(); });
       wrap.querySelector('.f-date').addEventListener('input', e => { item.date=e.target.value; scheduleSave(); recompute(); });
       wrap.querySelectorAll('.mode-toggle-inc-end button').forEach(btn => {
         btn.addEventListener('click', () => {
