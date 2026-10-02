@@ -134,6 +134,15 @@
   .ft-horizon button.active{border-color:var(--gold);color:var(--gold);}
 
   .ft-chart-wrap{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:18px 12px 8px;}
+  .ft-projection-chart-wrap{position:relative;}
+  .ft-chart-event-point{cursor:pointer;stroke:var(--surface);stroke-width:1.5;}
+  .ft-chart-event-point:hover,.ft-chart-event-point:focus{stroke:var(--gold);stroke-width:2.5;outline:none;}
+  .ft-chart-event-tooltip{position:absolute;z-index:3;width:min(260px,calc(100% - 16px));max-height:calc(100% - 16px);overflow:auto;padding:10px 12px;background:var(--surface);border:1px solid var(--accent);border-radius:4px;box-shadow:0 4px 16px rgba(0,0,0,.2);color:var(--text);font-size:12px;line-height:1.45;}
+  .ft-chart-event-tooltip .date{font-weight:600;color:var(--text);margin-bottom:5px;}
+  .ft-chart-event-tooltip ul{list-style:none;margin:0;padding:0;}
+  .ft-chart-event-tooltip li{display:flex;justify-content:space-between;gap:12px;padding:2px 0;color:var(--text-dim);}
+  .ft-chart-event-tooltip li span:last-child{font-family:'IBM Plex Mono',monospace;color:var(--text);white-space:nowrap;}
+  .ft-chart-event-tooltip .balance{border-top:1px solid var(--line);margin-top:6px;padding-top:6px;font-weight:600;}
   .ft-chart-legend{display:flex;gap:18px;font-size:12px;color:var(--text-dim);padding:0 6px 10px;flex-wrap:wrap;}
   .ft-chart-legend span{display:inline-flex;align-items:center;gap:6px;}
   .ft-chart-legend i{width:14px;height:2px;display:inline-block;}
@@ -149,7 +158,7 @@
   .ft-whatif .form{display:grid;grid-template-columns:1fr 110px 130px auto;gap:8px;margin-bottom:10px;}
   .ft-whatif .form input{background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:8px;border-radius:3px;width:100%;}
   .ft-whatif .form input[type=text]{font-family:'IBM Plex Sans',sans-serif;}
-  .ft-whatif .form button{background:var(--gold);border:none;color:var(--gold-contrast);font-weight:600;border-radius:3px;padding:8px 14px;cursor:pointer;font-size:13px;font-family:'IBM Plex Sans',sans-serif;}
+  .ft-whatif .form button{background:var(--gold);border:none;color:var(--gold-contrast);font-weight:600;border-radius:3px;padding:8px 14px;cursor:pointer;font-size:13px;font-family:'IBM Plex Sans',sans-serif;height:36px;align-self:end;}
   .ft-whatif-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px;}
   .ft-whatif-item .amt{font-family:'IBM Plex Mono',monospace;color:var(--neg);}
   .ft-whatif-item button{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:13px;}
@@ -203,6 +212,7 @@
     .ft-exp-top input[type=date]{grid-area:date;}
     .ft-exp-top button.del{grid-area:del;justify-self:end;}
     .ft-whatif .form{grid-template-columns:1fr;}
+    .ft-chart-event-tooltip{position:static;width:100%;max-width:100%;max-height:160px;margin-top:8px;left:auto;top:auto;}
     .ft-summary{grid-template-columns:1fr;}
     .ft-cmp-form{grid-template-columns:1fr;}
     .ft-balance-editor{flex-wrap:wrap;}
@@ -310,9 +320,10 @@
         <span id="legendWhatif" style="display:none"><i style="background:var(--accent)"></i>with what-if</span>
         <span id="legendBand" style="display:none"><i style="background:var(--accent);opacity:.4"></i>best/worst range</span>
         <span id="legendGoal" style="display:none"><i style="background:var(--text-dim);opacity:.6"></i>goal</span>
-        <span id="legendEvents" style="display:none"><i style="background:var(--accent);border-radius:50%;width:8px;height:8px;"></i>one-time event</span>
+        <span id="legendEvents" style="display:none"><i style="background:var(--accent);border-radius:50%;width:8px;height:8px;"></i>projection event</span>
       </div>
       <div id="chartHolder"></div>
+      <div id="chartEventTooltip" class="ft-chart-event-tooltip" role="status" aria-live="polite" hidden></div>
       <div class="ft-band-note" id="bandNote" style="display:none"></div>
     </div>
     <div class="ft-summary" id="summaryCards"></div>
@@ -523,12 +534,12 @@
     let events = [];
     data.income.forEach(inc => {
       const amt = Math.abs(parseFloat(inc.amount)||0);
-      generateOccurrenceDates(inc.date, inc.freq, horizonEnd, inc.end, { countMode:'futureRemaining' }).forEach(d => events.push({date:d, amount:amt}));
+      generateOccurrenceDates(inc.date, inc.freq, horizonEnd, inc.end, { countMode:'futureRemaining' }).forEach(d => events.push({date:d, amount:amt, kind:'income', source:inc.name||'Income'}));
     });
     data.expenses.forEach(exp => {
       const b = computeItemBounds(exp);
       const val = variant === 'worst' ? b.max : variant === 'best' ? b.min : b.expected;
-      generateOccurrenceDates(exp.date, exp.freq, horizonEnd, exp.end).forEach(d => events.push({date:d, amount:-val}));
+      generateOccurrenceDates(exp.date, exp.freq, horizonEnd, exp.end).forEach(d => events.push({date:d, amount:-val, kind:'spending', source:exp.name||'Spending'}));
     });
     if (extraEvents && extraEvents.length){
       events = events.concat(extraEvents);
@@ -538,15 +549,17 @@
       const date = event.date;
       const key = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
       if (!dailyEvents.has(key)){
-        dailyEvents.set(key, { date:new Date(date.getFullYear(), date.getMonth(), date.getDate()), amount:0 });
+        dailyEvents.set(key, { date:new Date(date.getFullYear(), date.getMonth(), date.getDate()), amount:0, items:[] });
       }
-      dailyEvents.get(key).amount += event.amount;
+      const dailyEvent = dailyEvents.get(key);
+      dailyEvent.amount += event.amount;
+      dailyEvent.items.push({ kind:event.kind||'whatif', source:event.source||'What-If purchase', amount:event.amount });
     });
     events = [...dailyEvents.values()].sort((a,b) => a.date - b.date);
 
     let bal = data.savings || 0;
     const points = [{date: today, balance: bal}];
-    events.forEach(e => { bal += e.amount; points.push({date: e.date, balance: bal}); });
+    events.forEach(e => { bal += e.amount; points.push({date:e.date, balance:bal, events:e.items}); });
     points.push({date: horizonEnd, balance: bal});
 
     let min = points[0].balance, minDate = points[0].date;
@@ -831,6 +844,7 @@
     return text.length * fontSize * 0.62;
   }
 
+  let projectionChartEvents = [];
   function drawChart(expected, scenario, worst, best){
     const lineColor = cssVar('--line'), faint = cssVar('--text-faint'), dim = cssVar('--text-dim'), neg = cssVar('--neg'), accent = cssVar('--accent'), bg = cssVar('--bg');
     const w = 660, h = 220, padR = 14, padT = 14, padB = 24;
@@ -883,24 +897,91 @@
     // "You are here" marker
     svg += `<circle cx="${x(expected.today).toFixed(1)}" cy="${y(expected.points[0].balance).toFixed(1)}" r="3.5" fill="${dim}" stroke="${bg}" stroke-width="1.5"/>`;
 
-    // Major one-time events (one-time "Spending" entries) plotted on whichever line is currently shown
+    // Event markers use the same grouped events and balances as the visible projection line.
     const lineForMarkers = scenario || expected;
-    let markerCount = 0;
-    data.expenses.filter(e => e.freq === 'once').forEach(e => {
-      const t = parseISO(e.date).getTime();
-      if (t <= t0 || t > t1) return;
-      const pt = lineForMarkers.points.find(p => p.date.getTime() === t);
-      if (!pt) return;
-      svg += `<circle cx="${x(pt.date).toFixed(1)}" cy="${y(pt.balance).toFixed(1)}" r="3" fill="${accent}" stroke="${bg}" stroke-width="1"/>`;
-      markerCount++;
+    const eventPoints = lineForMarkers.points.filter(point => point.events && point.events.length);
+    projectionChartEvents = eventPoints;
+    eventPoints.forEach((point,index) => {
+      const eventSummary = point.events.map(event => `${event.kind}: ${event.source} ${event.amount < 0 ? '-' : '+'}${fmt(Math.abs(event.amount))}`).join('; ');
+      const label = `${shortDate(point.date)}. ${eventSummary}. Projected balance ${fmt(point.balance)}.`;
+      svg += `<circle class="ft-chart-event-point" data-event-index="${index}" cx="${x(point.date).toFixed(1)}" cy="${y(point.balance).toFixed(1)}" r="4.5" fill="${accent}" stroke="${bg}" stroke-width="1.5" tabindex="0" role="button" aria-label="${escapeHTML(label)}"/>`;
     });
 
     svg += `</svg>`;
+    hideProjectionEventTooltip();
     document.getElementById('chartHolder').innerHTML = svg;
     document.getElementById('legendBand').style.display = (worst && best) ? 'inline-flex' : 'none';
     document.getElementById('legendGoal').style.display = goal > 0 ? 'inline-flex' : 'none';
-    document.getElementById('legendEvents').style.display = markerCount > 0 ? 'inline-flex' : 'none';
+    document.getElementById('legendEvents').style.display = eventPoints.length > 0 ? 'inline-flex' : 'none';
   }
+
+  function showProjectionEventTooltip(marker){
+    clearTimeout(chartTooltipHideTimer);
+    const point = projectionChartEvents[parseInt(marker.dataset.eventIndex,10)];
+    if (!point) return;
+    const tooltip = document.getElementById('chartEventTooltip');
+    const wrapper = document.querySelector('.ft-projection-chart-wrap');
+    tooltip.innerHTML = `<div class="date">${escapeHTML(shortDate(point.date))}</div><ul>${point.events.map(event => {
+      const label = event.kind === 'income' ? 'Income' : event.kind === 'spending' ? 'Spending' : 'What-If';
+      const amount = `${event.amount < 0 ? '−' : '+'}${fmt(Math.abs(event.amount))}`;
+      return `<li><span>${label}: ${escapeHTML(event.source)}</span><span>${amount}</span></li>`;
+    }).join('')}</ul><div class="balance">Projected balance: ${fmt(point.balance)}</div>`;
+    tooltip.hidden = false;
+    const wrapperRect = wrapper.getBoundingClientRect();
+    const markerRect = marker.getBoundingClientRect();
+    const tooltipWidth = tooltip.offsetWidth;
+    const tooltipHeight = tooltip.offsetHeight;
+    const left = Math.max(8, Math.min(markerRect.left - wrapperRect.left + markerRect.width/2 - tooltipWidth/2, wrapper.clientWidth - tooltipWidth - 8));
+    const aboveTop = markerRect.top - wrapperRect.top - tooltipHeight - 10;
+    const belowTop = markerRect.bottom - wrapperRect.top + 10;
+    const top = aboveTop >= 8 ? aboveTop
+      : belowTop + tooltipHeight <= wrapper.clientHeight - 8 ? belowTop
+      : Math.max(8, wrapper.clientHeight - tooltipHeight - 8);
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${top}px`;
+  }
+  function hideProjectionEventTooltip(){
+    clearTimeout(chartTooltipHideTimer);
+    document.getElementById('chartEventTooltip').hidden = true;
+  }
+  function scheduleHideProjectionEventTooltip(){
+    clearTimeout(chartTooltipHideTimer);
+    chartTooltipHideTimer = setTimeout(hideProjectionEventTooltip, 180);
+  }
+  let chartTooltipHideTimer = null;
+  const chartHolder = document.getElementById('chartHolder');
+  chartHolder.addEventListener('pointerover', event => {
+    const marker = event.target.closest('.ft-chart-event-point');
+    if (marker && event.pointerType === 'mouse') showProjectionEventTooltip(marker);
+  });
+  chartHolder.addEventListener('pointerout', event => {
+    if (event.target.closest('.ft-chart-event-point') && event.pointerType === 'mouse') scheduleHideProjectionEventTooltip();
+  });
+  chartHolder.addEventListener('click', event => {
+    const marker = event.target.closest('.ft-chart-event-point');
+    if (marker) showProjectionEventTooltip(marker);
+    else hideProjectionEventTooltip();
+  });
+  chartHolder.addEventListener('focusin', event => {
+    const marker = event.target.closest('.ft-chart-event-point');
+    if (marker) showProjectionEventTooltip(marker);
+  });
+  chartHolder.addEventListener('focusout', event => {
+    if (event.target.closest('.ft-chart-event-point')) hideProjectionEventTooltip();
+  });
+  chartHolder.addEventListener('keydown', event => {
+    if (event.target.closest('.ft-chart-event-point') && (event.key === 'Enter' || event.key === ' ')){
+      event.preventDefault();
+      showProjectionEventTooltip(event.target);
+    }
+  });
+  document.addEventListener('pointerdown', event => {
+    if (!event.target.closest('.ft-chart-event-point') && !event.target.closest('#chartEventTooltip')) hideProjectionEventTooltip();
+  });
+  document.getElementById('chartEventTooltip').addEventListener('pointerenter', () => clearTimeout(chartTooltipHideTimer));
+  document.getElementById('chartEventTooltip').addEventListener('pointerleave', event => {
+    if (event.pointerType === 'mouse') scheduleHideProjectionEventTooltip();
+  });
 
   function renderSummary(main, worst){
     const cards = [
