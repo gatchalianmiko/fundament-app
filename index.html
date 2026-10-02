@@ -38,6 +38,20 @@
   .ft-dash-grid .card.warn .v{color:var(--neg);}
   .ft-dash-grid .card.good .v{color:var(--gold);}
   .ft-dash-grid .card .sub{font-size:10px;color:var(--text-faint);margin-top:3px;}
+  .ft-cashflow-overview{display:grid;grid-template-columns:1fr 1.4fr;gap:16px;margin:-12px 0 26px;}
+  .ft-cashflow-panel{min-width:0;border-top:2px solid var(--accent);padding-top:8px;}
+  .ft-cashflow-panel h3{font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:600;color:var(--text-dim);margin-bottom:6px;}
+  .ft-month-flow{display:grid;grid-template-columns:1fr auto;gap:4px 10px;font-size:12px;color:var(--text-dim);}
+  .ft-month-flow .value{font-family:'IBM Plex Mono',monospace;color:var(--text);text-align:right;}
+  .ft-month-flow .net{border-top:1px solid var(--line);padding-top:5px;margin-top:2px;font-weight:600;color:var(--text);}
+  .ft-upcoming-list{display:grid;gap:6px;}
+  .ft-upcoming-date{font-size:11px;font-weight:600;color:var(--text-faint);}
+  .ft-upcoming-event{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;padding:2px 0;}
+  .ft-upcoming-event .source{min-width:0;overflow-wrap:anywhere;color:var(--text-dim);}
+  .ft-upcoming-event .amount{font-family:'IBM Plex Mono',monospace;white-space:nowrap;color:var(--text);}
+  .ft-upcoming-event .amount.spending{color:var(--neg);}
+  .ft-upcoming-paid{flex:0 0 auto;padding:4px 7px;border:1px solid var(--line);border-radius:3px;background:var(--surface-2);color:var(--text-dim);font:11px 'IBM Plex Sans',sans-serif;cursor:pointer;}
+  .ft-upcoming-paid:hover{border-color:var(--gold);color:var(--gold);}
   .ft-theme-toggle{display:flex;gap:6px;flex-shrink:0;}
   .ft-theme-toggle button{background:var(--surface-2);border:1px solid var(--line);color:var(--text-dim);padding:6px 12px;border-radius:3px;font-size:12px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;}
   .ft-theme-toggle button.active{border-color:var(--gold);color:var(--gold);}
@@ -134,6 +148,24 @@
   .ft-horizon button.active{border-color:var(--gold);color:var(--gold);}
 
   .ft-chart-wrap{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:18px 12px 8px;}
+  .ft-projection-chart-wrap{position:relative;}
+  .ft-chart-event-point{cursor:pointer;stroke:var(--surface);stroke-width:1.5;}
+  .ft-chart-event-point:hover,.ft-chart-event-point:focus{stroke:var(--gold);stroke-width:2.5;outline:none;}
+  .ft-chart-event-tooltip{position:absolute;z-index:3;width:min(260px,calc(100% - 16px));max-height:calc(100% - 16px);overflow:auto;padding:10px 12px;background:var(--surface);border:1px solid var(--accent);border-radius:4px;box-shadow:0 4px 16px rgba(0,0,0,.2);color:var(--text);font-size:12px;line-height:1.45;}
+  .ft-chart-event-tooltip .date{font-weight:600;color:var(--text);margin-bottom:5px;}
+  .ft-chart-event-tooltip ul{list-style:none;margin:0;padding:0;}
+  .ft-chart-event-tooltip li{display:flex;justify-content:space-between;gap:12px;padding:2px 0;color:var(--text-dim);}
+  .ft-chart-event-tooltip li span:last-child{font-family:'IBM Plex Mono',monospace;color:var(--text);white-space:nowrap;}
+  .ft-chart-event-tooltip .balance{border-top:1px solid var(--line);margin-top:6px;padding-top:6px;font-weight:600;}
+  .ft-projection-chart-wrap{position:relative;}
+  .ft-chart-event-point{cursor:pointer;stroke:var(--surface);stroke-width:1.5;}
+  .ft-chart-event-point:hover,.ft-chart-event-point:focus{stroke:var(--gold);stroke-width:2.5;outline:none;}
+  .ft-chart-event-tooltip{position:absolute;z-index:3;width:min(260px,calc(100% - 16px));max-height:calc(100% - 16px);overflow:auto;padding:10px 12px;background:var(--surface);border:1px solid var(--accent);border-radius:4px;box-shadow:0 4px 16px rgba(0,0,0,.2);color:var(--text);font-size:12px;line-height:1.45;}
+  .ft-chart-event-tooltip .date{font-weight:600;color:var(--text);margin-bottom:5px;}
+  .ft-chart-event-tooltip ul{list-style:none;margin:0;padding:0;}
+  .ft-chart-event-tooltip li{display:flex;justify-content:space-between;gap:12px;padding:2px 0;color:var(--text-dim);}
+  .ft-chart-event-tooltip li span:last-child{font-family:'IBM Plex Mono',monospace;color:var(--text);white-space:nowrap;}
+  .ft-chart-event-tooltip .balance{border-top:1px solid var(--line);margin-top:6px;padding-top:6px;font-weight:600;}
   .ft-chart-legend{display:flex;gap:18px;font-size:12px;color:var(--text-dim);padding:0 6px 10px;flex-wrap:wrap;}
   .ft-chart-legend span{display:inline-flex;align-items:center;gap:6px;}
   .ft-chart-legend i{width:14px;height:2px;display:inline-block;}
@@ -203,6 +235,8 @@
     .ft-exp-top input[type=date]{grid-area:date;}
     .ft-exp-top button.del{grid-area:del;justify-self:end;}
     .ft-whatif .form{grid-template-columns:1fr;}
+    .ft-cashflow-overview{grid-template-columns:1fr;gap:12px;margin:0 0 24px;}
+    .ft-chart-event-tooltip{position:static;width:100%;max-width:100%;max-height:160px;margin-top:8px;left:auto;top:auto;}
     .ft-summary{grid-template-columns:1fr;}
     .ft-cmp-form{grid-template-columns:1fr;}
     .ft-balance-editor{flex-wrap:wrap;}
@@ -246,6 +280,7 @@
   </div>
 
   <div class="ft-dash-grid" id="dashboardCards"></div>
+  <div class="ft-cashflow-overview" id="cashFlowOverview"></div>
 
   <section>
     <div class="ft-section-head"><h2>Starting point</h2></div>
@@ -304,15 +339,16 @@
         <input type="number" id="customHorizonInput" min="1" placeholder="months" style="display:none;width:70px;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:12px;padding:5px 8px;border-radius:3px;">
       </div>
     </div>
-    <div class="ft-chart-wrap">
+    <div class="ft-chart-wrap ft-projection-chart-wrap">
       <div class="ft-chart-legend">
         <span><i style="background:var(--text-dim)"></i>expected</span>
         <span id="legendWhatif" style="display:none"><i style="background:var(--accent)"></i>with what-if</span>
         <span id="legendBand" style="display:none"><i style="background:var(--accent);opacity:.4"></i>best/worst range</span>
         <span id="legendGoal" style="display:none"><i style="background:var(--text-dim);opacity:.6"></i>goal</span>
-        <span id="legendEvents" style="display:none"><i style="background:var(--accent);border-radius:50%;width:8px;height:8px;"></i>one-time event</span>
+        <span id="legendEvents" style="display:none"><i style="background:var(--accent);border-radius:50%;width:8px;height:8px;"></i>projection event</span>
       </div>
       <div id="chartHolder"></div>
+      <div id="chartEventTooltip" class="ft-chart-event-tooltip" role="status" aria-live="polite" hidden></div>
       <div class="ft-band-note" id="bandNote" style="display:none"></div>
     </div>
     <div class="ft-summary" id="summaryCards"></div>
@@ -385,6 +421,7 @@
     return { savings:0, savingsGoal:0, savingsGoalName:'', income:[], expenses:[], whatifs:[], horizonMonths:12, horizonIsCustom:false, theme:'dark', installmentMonths:6, receiptLog:[] };
   }
   let data = defaultData();
+  let pendingPaidOccurrence = null;
   let idCounter = 1;
   const newId = () => 'i' + (idCounter++);
   const bumpIdCounter = (id) => { const n = parseInt(String(id).replace(/^i/,''),10); if(!isNaN(n) && n>=idCounter) idCounter=n+1; };
@@ -523,12 +560,12 @@
     let events = [];
     data.income.forEach(inc => {
       const amt = Math.abs(parseFloat(inc.amount)||0);
-      generateOccurrenceDates(inc.date, inc.freq, horizonEnd, inc.end, { countMode:'futureRemaining' }).forEach(d => events.push({date:d, amount:amt}));
+      generateOccurrenceDates(inc.date, inc.freq, horizonEnd, inc.end, { countMode:'futureRemaining' }).forEach(d => events.push({date:d, amount:amt, kind:'income', source:inc.name||'Income'}));
     });
     data.expenses.forEach(exp => {
       const b = computeItemBounds(exp);
       const val = variant === 'worst' ? b.max : variant === 'best' ? b.min : b.expected;
-      generateOccurrenceDates(exp.date, exp.freq, horizonEnd, exp.end).forEach(d => events.push({date:d, amount:-val}));
+      generateOccurrenceDates(exp.date, exp.freq, horizonEnd, exp.end).forEach(d => events.push({date:d, amount:-val, kind:'spending', source:exp.name||'Spending', expenseId:exp.id}));
     });
     if (extraEvents && extraEvents.length){
       events = events.concat(extraEvents);
@@ -538,15 +575,17 @@
       const date = event.date;
       const key = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
       if (!dailyEvents.has(key)){
-        dailyEvents.set(key, { date:new Date(date.getFullYear(), date.getMonth(), date.getDate()), amount:0 });
+        dailyEvents.set(key, { date:new Date(date.getFullYear(), date.getMonth(), date.getDate()), amount:0, items:[] });
       }
-      dailyEvents.get(key).amount += event.amount;
+        const dailyEvent = dailyEvents.get(key);
+        dailyEvent.amount += event.amount;
+        dailyEvent.items.push({ kind:event.kind||'whatif', source:event.source||'What-If purchase', amount:event.amount, expenseId:event.expenseId });
     });
     events = [...dailyEvents.values()].sort((a,b) => a.date - b.date);
 
     let bal = data.savings || 0;
     const points = [{date: today, balance: bal}];
-    events.forEach(e => { bal += e.amount; points.push({date: e.date, balance: bal}); });
+    events.forEach(e => { bal += e.amount; points.push({date:e.date, balance:bal, events:e.items}); });
     points.push({date: horizonEnd, balance: bal});
 
     let min = points[0].balance, minDate = points[0].date;
@@ -612,7 +651,7 @@
     `;
 
     if (data.whatifs.length && baseline.reached && !baseline.alreadyMet){
-      const extra = data.whatifs.map(w => ({ date: parseISO(w.date), amount: -Math.abs(parseFloat(w.amount)||0) }));
+      const extra = data.whatifs.map(w => ({ date: parseISO(w.date), amount: -Math.abs(parseFloat(w.amount)||0), kind:'whatif', source:w.label||'What-If purchase' }));
       const withWi = computeGoalCrossing(extra);
       let withLine, deltaLine;
       if (!withWi.reached){
@@ -634,14 +673,14 @@
     if (!data.whatifs.length) return null;
     const months = Math.max(2, parseInt(data.installmentMonths,10)||6);
 
-    const originalEvents = data.whatifs.map(w => ({ date: parseISO(w.date), amount: -Math.abs(parseFloat(w.amount)||0) }));
-    const shiftedEvents = data.whatifs.map(w => ({ date: addMonths(parseISO(w.date),1), amount: -Math.abs(parseFloat(w.amount)||0) }));
+    const originalEvents = data.whatifs.map(w => ({ date: parseISO(w.date), amount: -Math.abs(parseFloat(w.amount)||0), kind:'whatif', source:w.label||'What-If purchase' }));
+    const shiftedEvents = data.whatifs.map(w => ({ date: addMonths(parseISO(w.date),1), amount: -Math.abs(parseFloat(w.amount)||0), kind:'whatif', source:w.label||'What-If purchase' }));
     const instEvents = [];
     data.whatifs.forEach(w => {
       const amt = Math.abs(parseFloat(w.amount)||0);
       const per = amt / months;
       let cur = parseISO(w.date);
-      for (let i=0;i<months;i++){ instEvents.push({date:new Date(cur.getTime()), amount:-per}); cur = addMonths(cur,1); }
+      for (let i=0;i<months;i++){ instEvents.push({date:new Date(cur.getTime()), amount:-per, kind:'whatif', source:`${w.label||'What-If purchase'} installment`}); cur = addMonths(cur,1); }
     });
 
     const origDates = data.whatifs.map(w => parseISO(w.date));
@@ -831,6 +870,7 @@
     return text.length * fontSize * 0.62;
   }
 
+  let projectionChartEvents = [];
   function drawChart(expected, scenario, worst, best){
     const lineColor = cssVar('--line'), faint = cssVar('--text-faint'), dim = cssVar('--text-dim'), neg = cssVar('--neg'), accent = cssVar('--accent'), bg = cssVar('--bg');
     const w = 660, h = 220, padR = 14, padT = 14, padB = 24;
@@ -883,24 +923,115 @@
     // "You are here" marker
     svg += `<circle cx="${x(expected.today).toFixed(1)}" cy="${y(expected.points[0].balance).toFixed(1)}" r="3.5" fill="${dim}" stroke="${bg}" stroke-width="1.5"/>`;
 
-    // Major one-time events (one-time "Spending" entries) plotted on whichever line is currently shown
+    // Event markers use the same grouped events and balances as the visible projection line.
     const lineForMarkers = scenario || expected;
-    let markerCount = 0;
-    data.expenses.filter(e => e.freq === 'once').forEach(e => {
-      const t = parseISO(e.date).getTime();
-      if (t <= t0 || t > t1) return;
-      const pt = lineForMarkers.points.find(p => p.date.getTime() === t);
-      if (!pt) return;
-      svg += `<circle cx="${x(pt.date).toFixed(1)}" cy="${y(pt.balance).toFixed(1)}" r="3" fill="${accent}" stroke="${bg}" stroke-width="1"/>`;
-      markerCount++;
+    const eventPoints = lineForMarkers.points.filter(point => point.events && point.events.length);
+    projectionChartEvents = eventPoints;
+    eventPoints.forEach((point,index) => {
+      const eventSummary = point.events.map(event => `${event.kind}: ${event.source} ${event.amount < 0 ? '-' : '+'}${fmt(Math.abs(event.amount))}`).join('; ');
+      const label = `${shortDate(point.date)}. ${eventSummary}. Projected balance ${fmt(point.balance)}.`;
+      svg += `<circle class="ft-chart-event-point" data-event-index="${index}" cx="${x(point.date).toFixed(1)}" cy="${y(point.balance).toFixed(1)}" r="4.5" fill="${accent}" stroke="${bg}" stroke-width="1.5" tabindex="0" role="button" aria-label="${escapeHTML(label)}"/>`;
     });
 
+    const chartWidth = document.getElementById('chartHolder').clientWidth || w;
+    const axisFontSize = 9 * w / chartWidth;
+    const axisY = h - padB;
+    svg += `<line x1="${padL}" y1="${axisY}" x2="${w-padR}" y2="${axisY}" stroke="${lineColor}" stroke-width="1"/>`;
+    const firstMonth = new Date(expected.today.getFullYear(), expected.today.getMonth(), 1);
+    const axisEnd = new Date(t1);
+    let previousLabelRight = -Infinity;
+    for (let month = 0; ; month++){
+      const monthDate = new Date(firstMonth.getFullYear(), firstMonth.getMonth()+month, 1);
+      if (monthDate > axisEnd) break;
+      const tickDate = month === 0 ? expected.today : monthDate;
+      const tickX = x(tickDate);
+      const monthLabel = monthDate.toLocaleDateString('en-PH', { month:'short' });
+      const yearLabel = String(monthDate.getFullYear()).slice(-2);
+      const labelText = `${monthLabel} '${yearLabel}`;
+      const anchor = tickX < padL + 24*w/chartWidth ? 'start' : tickX > w-padR-24*w/chartWidth ? 'end' : 'middle';
+      const labelWidth = labelText.length * axisFontSize * 0.62;
+      const labelLeft = anchor === 'start' ? tickX : anchor === 'end' ? tickX-labelWidth : tickX-labelWidth/2;
+      if (labelLeft < previousLabelRight + 4*w/chartWidth) continue;
+      svg += `<line x1="${tickX.toFixed(1)}" y1="${axisY}" x2="${tickX.toFixed(1)}" y2="${axisY+4}" stroke="${lineColor}" stroke-width="1"/>`;
+      svg += `<text class="x-axis-label" x="${tickX.toFixed(1)}" y="${h-5}" font-family="IBM Plex Mono" font-size="${axisFontSize.toFixed(2)}" fill="${faint}" text-anchor="${anchor}">${labelText}</text>`;
+      previousLabelRight = labelLeft + labelWidth;
+    }
+
     svg += `</svg>`;
+    hideProjectionEventTooltip();
     document.getElementById('chartHolder').innerHTML = svg;
     document.getElementById('legendBand').style.display = (worst && best) ? 'inline-flex' : 'none';
     document.getElementById('legendGoal').style.display = goal > 0 ? 'inline-flex' : 'none';
-    document.getElementById('legendEvents').style.display = markerCount > 0 ? 'inline-flex' : 'none';
+    document.getElementById('legendEvents').style.display = eventPoints.length > 0 ? 'inline-flex' : 'none';
   }
+
+  function showProjectionEventTooltip(marker){
+    clearTimeout(chartTooltipHideTimer);
+    const point = projectionChartEvents[parseInt(marker.dataset.eventIndex,10)];
+    if (!point) return;
+    const tooltip = document.getElementById('chartEventTooltip');
+    const wrapper = document.querySelector('.ft-projection-chart-wrap');
+    tooltip.innerHTML = `<div class="date">${escapeHTML(shortDate(point.date))}</div><ul>${point.events.map(event => {
+      const label = event.kind === 'income' ? 'Income' : event.kind === 'spending' ? 'Spending' : 'What-If';
+      const amount = `${event.amount < 0 ? '−' : '+'}${fmt(Math.abs(event.amount))}`;
+      return `<li><span>${label}: ${escapeHTML(event.source)}</span><span>${amount}</span></li>`;
+    }).join('')}</ul><div class="balance">Projected balance: ${fmt(point.balance)}</div>`;
+    tooltip.hidden = false;
+    const wrapperRect = wrapper.getBoundingClientRect();
+    const markerRect = marker.getBoundingClientRect();
+    const tooltipWidth = tooltip.offsetWidth;
+    const tooltipHeight = tooltip.offsetHeight;
+    const left = Math.max(8, Math.min(markerRect.left - wrapperRect.left + markerRect.width/2 - tooltipWidth/2, wrapper.clientWidth - tooltipWidth - 8));
+    const aboveTop = markerRect.top - wrapperRect.top - tooltipHeight - 10;
+    const belowTop = markerRect.bottom - wrapperRect.top + 10;
+    const top = aboveTop >= 8 ? aboveTop
+      : belowTop + tooltipHeight <= wrapper.clientHeight - 8 ? belowTop
+      : Math.max(8, wrapper.clientHeight - tooltipHeight - 8);
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${top}px`;
+  }
+  function hideProjectionEventTooltip(){
+    clearTimeout(chartTooltipHideTimer);
+    document.getElementById('chartEventTooltip').hidden = true;
+  }
+  function scheduleHideProjectionEventTooltip(){
+    clearTimeout(chartTooltipHideTimer);
+    chartTooltipHideTimer = setTimeout(hideProjectionEventTooltip, 180);
+  }
+  let chartTooltipHideTimer = null;
+  const chartHolder = document.getElementById('chartHolder');
+  chartHolder.addEventListener('pointerover', event => {
+    const marker = event.target.closest('.ft-chart-event-point');
+    if (marker && event.pointerType === 'mouse') showProjectionEventTooltip(marker);
+  });
+  chartHolder.addEventListener('pointerout', event => {
+    if (event.target.closest('.ft-chart-event-point') && event.pointerType === 'mouse') scheduleHideProjectionEventTooltip();
+  });
+  chartHolder.addEventListener('click', event => {
+    const marker = event.target.closest('.ft-chart-event-point');
+    if (marker) showProjectionEventTooltip(marker);
+    else hideProjectionEventTooltip();
+  });
+  chartHolder.addEventListener('focusin', event => {
+    const marker = event.target.closest('.ft-chart-event-point');
+    if (marker) showProjectionEventTooltip(marker);
+  });
+  chartHolder.addEventListener('focusout', event => {
+    if (event.target.closest('.ft-chart-event-point')) hideProjectionEventTooltip();
+  });
+  chartHolder.addEventListener('keydown', event => {
+    if (event.target.closest('.ft-chart-event-point') && (event.key === 'Enter' || event.key === ' ')){
+      event.preventDefault();
+      showProjectionEventTooltip(event.target);
+    }
+  });
+  document.addEventListener('pointerdown', event => {
+    if (!event.target.closest('.ft-chart-event-point') && !event.target.closest('#chartEventTooltip')) hideProjectionEventTooltip();
+  });
+  document.getElementById('chartEventTooltip').addEventListener('pointerenter', () => clearTimeout(chartTooltipHideTimer));
+  document.getElementById('chartEventTooltip').addEventListener('pointerleave', event => {
+    if (event.pointerType === 'mouse') scheduleHideProjectionEventTooltip();
+  });
 
   function renderSummary(main, worst){
     const cards = [
@@ -948,6 +1079,30 @@
     }, 0);
   }
 
+  function renderCashFlowOverview(projection){
+    const year = projection.today.getFullYear(), month = projection.today.getMonth();
+    const monthEvents = projection.points
+      .filter(point => point.date.getFullYear() === year && point.date.getMonth() === month)
+      .flatMap(point => point.events || [])
+      .filter(event => event.kind === 'income' || event.kind === 'spending');
+    const monthIncome = monthEvents.filter(event => event.kind === 'income').reduce((sum,event) => sum + event.amount, 0);
+    const monthSpending = Math.abs(monthEvents.filter(event => event.kind === 'spending').reduce((sum,event) => sum + event.amount, 0));
+    const upcoming = projection.points
+      .filter(point => point.date > projection.today && point.events && point.events.some(event => event.kind === 'income' || event.kind === 'spending'))
+      .slice(0,5);
+    const monthLabel = projection.today.toLocaleDateString('en-PH', { month:'long', year:'numeric' });
+    const upcomingHtml = upcoming.length ? `<div class="ft-upcoming-list">${upcoming.map(point => `<div class="ft-upcoming-group"><div class="ft-upcoming-date">${escapeHTML(shortDate(point.date))}</div>${point.events.filter(event => event.kind === 'income' || event.kind === 'spending').map(event => {
+      const isSpending = event.kind === 'spending';
+      const amount = `${isSpending ? '-' : '+'}${fmt(Math.abs(event.amount))}`;
+      const paid = isSpending && event.expenseId && !data.receiptLog.some(receipt => receipt.sourceExpenseId === event.expenseId && receipt.sourceScheduledDate === dateISO(point.date));
+      return `<div class="ft-upcoming-event"><span class="source">${escapeHTML(event.source)}</span><span class="amount ${isSpending?'spending':''}">${amount}</span>${paid ? `<button class="ft-upcoming-paid" data-expense-id="${escapeHTML(event.expenseId)}" data-scheduled-date="${dateISO(point.date)}" aria-label="Mark ${escapeHTML(event.source)} on ${escapeHTML(shortDate(point.date))} as paid">Mark as paid</button>` : ''}</div>`;
+    }).join('')}</div>`).join('')}</div>` : '<div class="ft-empty">No upcoming scheduled cash flow.</div>';
+    const overview = document.getElementById('cashFlowOverview');
+    overview.innerHTML = `<div class="ft-cashflow-panel"><h3>This month · ${escapeHTML(monthLabel)}</h3><div class="ft-month-flow"><span>Scheduled income</span><span class="value">${fmt(monthIncome)}</span><span>Planned spending</span><span class="value">${fmt(monthSpending)}</span><span class="net">Projected net</span><span class="value net">${fmt(monthIncome-monthSpending)}</span></div></div><div class="ft-cashflow-panel"><h3>Upcoming</h3>${upcomingHtml}</div>`;
+    overview.querySelectorAll('.ft-upcoming-paid').forEach(button => button.addEventListener('click', () => {
+      prefillSpendingReceipt(button.dataset.expenseId, button.dataset.scheduledDate);
+    }));
+  }
   function renderDashboard(expected){
     const income = computeMonthlyIncome();
     const committed = computeMonthlyCommitted();
@@ -959,10 +1114,10 @@
     const months = monthsBetween(expected.today, expected.horizonEnd);
 
     const cards = [
-      { k:'Income each month', v: fmt(income) },
-      { k:'Committed each month', v: fmt(committed) },
-      { k:'Monthly surplus / deficit', v: fmt(surplus), cls: surplus<0?'warn':'good' },
-      { k:`In ${months} month${months===1?'':'s'}`, v: fmt(expected.endBalance), sub:'projected savings', cls: expected.endBalance<0?'warn':'' }
+      { k:'Income each month', v: fmt(income), sub:'Scheduled recurring income, monthly equivalent' },
+      { k:'Committed each month', v: fmt(committed), sub:'Committed recurring planned spending' },
+      { k:'Monthly surplus / deficit', v: fmt(surplus), sub:'Projected monthly net', cls: surplus<0?'warn':'good' },
+      { k:`In ${months} month${months===1?'':'s'}`, v: fmt(expected.endBalance), sub:'Projected balance at selected horizon', cls: expected.endBalance<0?'warn':'' }
     ];
     if (goal > 0){
       const g = computeGoalCrossing(null);
@@ -971,21 +1126,22 @@
       else if (!g.reached) goalVal = 'Not reachable within 20 years';
       else goalVal = `About ${g.months} month${g.months===1?'':'s'} away`;
       const goalName = (typeof data.savingsGoalName === 'string' ? data.savingsGoalName : '').trim() || 'Savings goal';
-      cards.push({ k:goalName, v: goalVal, sub:`${fmt(goal)} goal`, cls: (!g.reached && !g.alreadyMet) ? 'warn' : 'good' });
+      cards.push({ k:goalName, v: goalVal, sub:`Goal status · ${fmt(goal)}`, cls: (!g.reached && !g.alreadyMet) ? 'warn' : 'good' });
     } else {
-      cards.push({ k:'Goal', v:'Not set' });
+      cards.push({ k:'Goal', v:'Not set', sub:'Goal status' });
     }
-    cards.push({ k:'By end of next month', v:fmt(nextMonthBalance), cls:nextMonthBalance<0?'warn':'' });
+    cards.push({ k:'By end of next month', v:fmt(nextMonthBalance), sub:'Next-month projected balance', cls:nextMonthBalance<0?'warn':'' });
     document.getElementById('dashboardCards').innerHTML = cards.map(c =>
       `<div class="card ${escapeHTML(c.cls||'')}"><div class="k">${escapeHTML(c.k)}</div><div class="v">${escapeHTML(c.v)}</div>${c.sub?`<div class="sub">${escapeHTML(c.sub)}</div>`:''}</div>`
     ).join('');
+    renderCashFlowOverview(expected);
   }
 
   function recompute(){
     const expected = buildProjection('expected');
     let scenario = null;
     if (data.whatifs.length){
-      const extra = data.whatifs.map(w => ({ date: parseISO(w.date), amount: -Math.abs(parseFloat(w.amount)||0) }));
+      const extra = data.whatifs.map(w => ({ date: parseISO(w.date), amount: -Math.abs(parseFloat(w.amount)||0), kind:'whatif', source:w.label||'What-If purchase' }));
       scenario = buildProjection('expected', extra);
     }
     let worst=null, best=null;
@@ -1247,6 +1403,51 @@
     return last ? { date:last, amount:computeItemBounds(item).expected } : null;
   }
   function overdueKey(item, occurrence){ return `${item.id}:${dateISO(occurrence.date)}`; }
+  function hasConfirmedOccurrenceReceipt(id, scheduledDate){
+    return data.receiptLog.some(receipt => receipt.sourceExpenseId === id && receipt.sourceScheduledDate === scheduledDate);
+  }
+  function scheduledExpenseOccurrence(item, scheduledDate){
+    if (!item || !scheduledDate || scheduledDate <= todayISO()) return null;
+    const date = parseISO(scheduledDate);
+    const occurrences = generateOccurrenceDates(item.date, item.freq, date, item.end);
+    if (!occurrences.some(occurrence => dateISO(occurrence) === scheduledDate)) return null;
+    return { date, amount:computeItemBounds(item).expected };
+  }
+  function prefillSpendingReceipt(id, scheduledDate){
+    const item = data.expenses.find(expense => expense.id === id);
+    const occurrence = scheduledExpenseOccurrence(item, scheduledDate);
+    const status = document.getElementById('receiptStatus');
+    if (!occurrence || hasConfirmedOccurrenceReceipt(id, scheduledDate)){
+      status.textContent = 'This spending occurrence is no longer available to mark as paid.';
+      status.style.display = 'block';
+      return;
+    }
+    pendingPaidOccurrence = { expenseId:id, scheduledDate };
+    document.getElementById('rcMerchant').value = item.name || 'Spending';
+    document.getElementById('rcAmount').value = Math.abs(occurrence.amount);
+    document.getElementById('rcDate').value = todayISO();
+    status.style.display = 'none';
+    document.getElementById('rcOpenBtn').style.display = 'none';
+    document.getElementById('receiptConfirm').style.display = 'block';
+    const confirmForm = document.getElementById('receiptConfirm');
+    if (confirmForm.scrollIntoView) confirmForm.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  }
+  function consumeExpenseOccurrence(item, occurrenceDate){
+    if (item.freq === 'once'){
+      data.expenses = data.expenses.filter(expense => expense.id !== item.id);
+    } else if (item.end && item.end.type === 'count'){
+      const remaining = Math.max(0, parseInt(item.end.count,10)||0) - 1;
+      if (remaining <= 0) data.expenses = data.expenses.filter(expense => expense.id !== item.id);
+      else { item.end.count = remaining; item.date = dateISO(addInterval(occurrenceDate, item.freq)); }
+    } else {
+      const nextDate = addInterval(occurrenceDate, item.freq);
+      if (item.end && item.end.type === 'date' && item.end.date && nextDate > parseISO(item.end.date)){
+        data.expenses = data.expenses.filter(expense => expense.id !== item.id);
+      } else {
+        item.date = dateISO(nextDate);
+      }
+    }
+  }
   function renderOverdueSpending(){
     const el = document.getElementById('overdueSpending');
     if (!el) return;
@@ -1276,23 +1477,10 @@
     const occurrence = overdueOccurrence(item);
     if (!occurrence || dateISO(occurrence.date) !== scheduledDate) return;
     const amount = Math.abs(parseFloat(occurrence.amount)||0);
-    if (!amount || data.receiptLog.some(receipt => receipt.sourceExpenseId === id && receipt.sourceScheduledDate === scheduledDate)) return;
+    if (!amount || hasConfirmedOccurrenceReceipt(id, scheduledDate)) return;
     data.savings -= amount;
     data.receiptLog.push({ id:newId(), merchant:item.name || 'Receipt', amount, date:scheduledDate, sourceExpenseId:id, sourceScheduledDate:scheduledDate });
-    if (item.freq === 'once'){
-      data.expenses = data.expenses.filter(expense => expense.id !== id);
-    } else if (item.end && item.end.type === 'count'){
-      const remaining = Math.max(0, parseInt(item.end.count,10)||0) - 1;
-      if (remaining <= 0) data.expenses = data.expenses.filter(expense => expense.id !== id);
-      else { item.end.count = remaining; item.date = dateISO(addInterval(occurrence.date, item.freq)); }
-    } else {
-      const nextDate = addInterval(occurrence.date, item.freq);
-      if (item.end && item.end.type === 'date' && item.end.date && nextDate > parseISO(item.end.date)){
-        data.expenses = data.expenses.filter(expense => expense.id !== id);
-      } else {
-        item.date = dateISO(nextDate);
-      }
-    }
+    consumeExpenseOccurrence(item, occurrence.date);
     dismissedOverdue.delete(`${id}:${scheduledDate}`);
     document.getElementById('inpSavings').value = data.savings;
     renderExpenseCards(); renderReceiptLog(); scheduleSave(); recompute();
@@ -1326,14 +1514,17 @@
     document.getElementById('receiptConfirm').style.display = 'none';
     document.getElementById('receiptStatus').style.display = 'none';
     document.getElementById('rcOpenBtn').style.display = 'block';
+    pendingPaidOccurrence = null;
   }
   document.getElementById('rcOpenBtn').addEventListener('click', () => {
+    pendingPaidOccurrence = null;
     document.getElementById('receiptConfirm').style.display = 'block';
     document.getElementById('rcOpenBtn').style.display = 'none';
   });
   document.getElementById('rcCancelBtn').addEventListener('click', closeReceiptForm);
   document.getElementById('rcDate').max = todayISO();
   document.getElementById('rcConfirmBtn').addEventListener('click', () => {
+    if (document.getElementById('receiptConfirm').style.display === 'none') return;
     const amount = Math.abs(parseFloat(document.getElementById('rcAmount').value)||0);
     if (!amount) return;
     const merchant = document.getElementById('rcMerchant').value.trim() || 'Receipt';
@@ -1344,11 +1535,23 @@
       statusEl.style.display = 'block';
       return;
     }
+    const pending = pendingPaidOccurrence;
+    let paidItem = null;
+    if (pending){
+      paidItem = data.expenses.find(expense => expense.id === pending.expenseId);
+      if (!scheduledExpenseOccurrence(paidItem, pending.scheduledDate) || hasConfirmedOccurrenceReceipt(pending.expenseId, pending.scheduledDate)){
+        const statusEl = document.getElementById('receiptStatus');
+        statusEl.textContent = 'This spending occurrence has already been recorded or is no longer scheduled.';
+        statusEl.style.display = 'block';
+        return;
+      }
+    }
     data.savings -= amount;
-    data.receiptLog.push({ id:newId(), date, merchant, amount });
+    data.receiptLog.push({ id:newId(), date, merchant, amount, ...(pending ? { sourceExpenseId:pending.expenseId, sourceScheduledDate:pending.scheduledDate } : {}) });
+    if (pending && paidItem) consumeExpenseOccurrence(paidItem, parseISO(pending.scheduledDate));
     document.getElementById('inpSavings').value = data.savings;
     closeReceiptForm();
-    renderReceiptLog(); scheduleSave(); recompute();
+    renderExpenseCards(); renderReceiptLog(); scheduleSave(); recompute();
   });
   let saveTimer = null;
   function scheduleSave(){
