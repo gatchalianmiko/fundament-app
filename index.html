@@ -181,7 +181,7 @@
   .ft-whatif .form{display:grid;grid-template-columns:1fr 110px 130px auto;gap:8px;margin-bottom:10px;}
   .ft-whatif .form input{background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:8px;border-radius:3px;width:100%;}
   .ft-whatif .form input[type=text]{font-family:'IBM Plex Sans',sans-serif;}
-  .ft-whatif .form button{background:var(--gold);border:none;color:var(--gold-contrast);font-weight:600;border-radius:3px;padding:8px 14px;cursor:pointer;font-size:13px;font-family:'IBM Plex Sans',sans-serif;}
+  .ft-whatif .form button{background:var(--gold);border:none;color:var(--gold-contrast);font-weight:600;border-radius:3px;padding:8px 14px;cursor:pointer;font-size:13px;font-family:'IBM Plex Sans',sans-serif;height:36px;align-self:end;}
   .ft-whatif-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px;}
   .ft-whatif-item .amt{font-family:'IBM Plex Mono',monospace;color:var(--neg);}
   .ft-whatif-item button{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:13px;}
@@ -577,9 +577,9 @@
       if (!dailyEvents.has(key)){
         dailyEvents.set(key, { date:new Date(date.getFullYear(), date.getMonth(), date.getDate()), amount:0, items:[] });
       }
-        const dailyEvent = dailyEvents.get(key);
-        dailyEvent.amount += event.amount;
-        dailyEvent.items.push({ kind:event.kind||'whatif', source:event.source||'What-If purchase', amount:event.amount, expenseId:event.expenseId });
+      const dailyEvent = dailyEvents.get(key);
+      dailyEvent.amount += event.amount;
+      dailyEvent.items.push({ kind:event.kind||'whatif', source:event.source||'What-If purchase', amount:event.amount, expenseId:event.expenseId });
     });
     events = [...dailyEvents.values()].sort((a,b) => a.date - b.date);
 
