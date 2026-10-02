@@ -126,10 +126,16 @@
   .ft-receipt-log-item .meta{color:var(--text-dim);}
   .ft-receipt-log-item .amt{font-family:'IBM Plex Mono',monospace;color:var(--neg);}
   .ft-receipt-log-item button{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:12px;text-decoration:underline;}
-  .ft-overdue{margin-bottom:12px;padding:10px 12px;background:var(--surface-2);border:1px solid var(--line);border-radius:3px;}
-  .ft-overdue .title{font-size:13px;color:var(--text);margin-bottom:6px;}
-  .ft-overdue-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:12px;}
-  .ft-overdue-item .actions{display:flex;gap:6px;flex-shrink:0;}
+  .ft-overdue{margin-bottom:12px;padding:10px 12px;background:color-mix(in srgb,var(--neg) 6%,var(--surface));border:1px solid color-mix(in srgb,var(--neg) 30%,var(--line));border-left:3px solid var(--neg);border-radius:3px;}
+  .ft-overdue-head{margin-bottom:6px;}
+  .ft-overdue .title{font-size:12px;font-weight:600;color:var(--neg);margin-bottom:3px;}
+  .ft-overdue .note{font-size:11px;color:var(--text-dim);line-height:1.35;}
+  .ft-overdue-item{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:7px 0;border-top:1px solid color-mix(in srgb,var(--neg) 22%,var(--line));font-size:12px;}
+  .ft-overdue-item .details{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;gap:3px 10px;min-width:0;}
+  .ft-overdue-item .source{font-weight:500;overflow-wrap:anywhere;color:var(--text);}
+  .ft-overdue-item .due{font-size:11px;color:var(--text-dim);white-space:nowrap;}
+  .ft-overdue-item .amount{grid-column:2;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--neg);white-space:nowrap;}
+  .ft-overdue-item .actions{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;}
   .ft-overdue-item button{background:var(--surface);border:1px solid var(--line);color:var(--text-dim);padding:5px 8px;border-radius:3px;font-size:11px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;}
   .ft-overdue-item button:first-child{background:var(--accent);border-color:var(--accent);color:var(--accent-contrast);}
 
@@ -240,6 +246,8 @@
     .ft-exp-top select{grid-area:freq;}
     .ft-exp-top input[type=date]{grid-area:date;}
     .ft-exp-top button.del{grid-area:del;justify-self:end;}
+    .ft-overdue-item{grid-template-columns:minmax(0,1fr);gap:7px;}
+    .ft-overdue-item .actions{justify-content:flex-start;}
     .ft-whatif .form{grid-template-columns:1fr;}
     .ft-cashflow-overview{grid-template-columns:1fr;gap:12px;margin:0 0 24px;}
     .ft-chart-event-tooltip{position:static;width:100%;max-width:100%;max-height:160px;margin-top:8px;left:auto;top:auto;}
@@ -1461,11 +1469,14 @@
       return occurrence && occurrence.amount > 0 ? { item, occurrence } : null;
     }).filter(Boolean).filter(({item, occurrence}) => !dismissedOverdue.has(overdueKey(item, occurrence)));
     if (!overdue.length){ el.innerHTML = ''; return; }
-    el.innerHTML = `<div class="ft-overdue"><div class="title">Payments may be overdue</div>${overdue.map(({item, occurrence}) =>
+    el.innerHTML = `<div class="ft-overdue" role="region" aria-label="Overdue spending">
+      <div class="ft-overdue-head"><div class="title">Overdue spending</div><div class="note">Confirm after payment to add a Receipt and deduct Current Savings. Not yet leaves it planned.</div></div>
+      ${overdue.map(({item, occurrence}) =>
       `<div class="ft-overdue-item" data-id="${escapeHTML(item.id)}" data-date="${dateISO(occurrence.date)}">
-        <span>${escapeHTML(item.name || 'Spending')} — ${fmt(occurrence.amount)} due ${escapeHTML(shortDate(occurrence.date))}</span>
+        <div class="details"><span class="source">${escapeHTML(item.name || 'Spending')}</span><span class="due">Due ${escapeHTML(shortDate(occurrence.date))}</span><span class="amount">${fmt(occurrence.amount)}</span></div>
         <span class="actions"><button class="overdue-confirm">Yes, add to Receipts</button><button class="overdue-dismiss">Not yet</button></span>
-      </div>`).join('')}</div>`;
+      </div>`).join('')}
+    </div>`;
     el.querySelectorAll('.overdue-dismiss').forEach(button => button.addEventListener('click', e => {
       const row = e.target.closest('.ft-overdue-item');
       dismissedOverdue.add(`${row.dataset.id}:${row.dataset.date}`);
